@@ -38,4 +38,6 @@ Collect only necessary profile data; date of birth is optional unless a reviewed
 
 ## Phase 0 posture
 
-Phase 0 has no authentication, database connection, user input endpoints, upload flow, or AI/speech provider call. The committed configuration demonstrates separation but deliberately accepts absent production secrets so CI can build. Each later provider must validate its required variables at initialization and production startup/health checks must verify complete configuration.
+The first-run installer is a narrow unauthenticated bootstrap surface that closes permanently after installation. It uses same-origin Server Actions, Zod validation, bounded tests, file-backed rate limits, an exclusive lock, parameterized SQL, fixed migration execution, strong password hashing, and encrypted provider credentials. See `docs/INSTALLER.md`.
+
+Normal database-backed routes remain unavailable until explicit completion. After completion, `/install` redirects and every installer mutation rechecks state. There is no browser-accessible reset, secret reveal, arbitrary SQL, command execution, filesystem path, Git pull, or update endpoint.

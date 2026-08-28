@@ -1,7 +1,13 @@
+import { connection } from "next/server";
+import { redirect } from "next/navigation";
+
 import { appConfig } from "@/config/app";
 import { getMessages } from "@/i18n";
+import { isInstalled } from "@/lib/installer/status";
 
-export default function Home() {
+export default async function Home() {
+  await connection();
+  if (!(await isInstalled())) redirect("/install");
   const messages = getMessages(appConfig.defaultLocale).foundation;
 
   return (

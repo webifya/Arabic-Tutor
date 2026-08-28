@@ -6,6 +6,12 @@ Phase 0 establishes boundaries, not product features. Lisan begins with Bangla â
 
 The production runtime is a long-lived standard Node.js process under cPanel Passenger. Next.js uses App Router and standalone output; core behavior must not depend on Edge or Vercel services.
 
+## Bootstrap and installation mode
+
+Lisan can start without a database solely for first-run installation. Server-rendered entry routes read explicit installation state from a private runtime configuration and redirect uninstalled requests to `/install`. Installer actions are the only mutation surface available in this state. Database-backed routes must call the same installation guard before accessing repositories.
+
+The runtime configuration is never public or bundled as an asset. It solves the pre-database bootstrap problem and merges with environment variables using environment-first precedence. Completion is recorded in both runtime state and `app_settings`; table existence is never treated as completion. See `docs/INSTALLER.md`.
+
 ## Layers
 
 1. `src/app`: routes, layouts, Server Components, and route handlers.
@@ -16,6 +22,7 @@ The production runtime is a long-lived standard Node.js process under cPanel Pas
 6. `src/lib/storage`: storage provider contract and local/cPanel implementation.
 7. `src/lib/ai`: provider-neutral AI/speech contracts, routing, credential access, tutor orchestration, and vendor adapters.
 8. `src/config` and `src/i18n`: validated settings, branding, and typed UI messages.
+9. `src/lib/installer`: bootstrap state, private drafts, readiness, locks/rate limits, encryption/password primitives, migration orchestration, and initial seed transaction.
 
 Later phases should enforce dependencies inward: routes call services; services call repositories/providers. UI must not call Prisma, AI vendor, speech vendor, or storage SDKs directly.
 
@@ -55,3 +62,5 @@ Teaching/personality style is resolved independently. A child-mode learner may r
 ## Operational constraints
 
 The Node process must be horizontally safe: do not rely on in-memory sessions, job state, rate limits, or durable caches. Use database-backed coordination when those features arrive. Long AI/audio requests need explicit size and time limits suitable for shared hosting.
+
+The first-run installer is the documented exception: before a database exists it uses private atomic files for drafts, rate limits, and its exclusive lock. This targets one cPanel application root. Replace that bootstrap coordination before running multiple application roots concurrently.

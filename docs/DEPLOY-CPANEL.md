@@ -23,7 +23,12 @@ Never place secrets in the Git repository or a public web root. cPanel account n
 5. Use the terminal provided by the Node app UI to run `npm run build`. If the UI cannot run build commands, build a release using the same Node version locally or in CI, then upload the repository plus `.next/standalone`, `.next/standalone/.next/static`, and `.next/standalone/public` produced by the build.
 6. Restart the application from cPanel and open its HTTPS URL.
 
+7. On a fresh installation, opening the site redirects to `/install`. Complete the database, site, super-admin, and optional provider/voice steps. No database environment variable is required before the bootstrap server starts.
+
 The build script copies static and public assets into the standalone bundle automatically.
+It uses Next.js's supported webpack production builder to avoid Turbopack worker/socket restrictions found on some shared cPanel environments.
+
+For a fresh browser installation, retain the full application root, `prisma/migrations`, and installed Prisma CLI. Do not deploy only the minimal `.next/standalone` directory. Once installed, environment variables may override values persisted in the private runtime configuration.
 
 ## Method B: SSH
 
@@ -41,6 +46,8 @@ NODE_ENV=production PORT=3000 node server.cjs
 
 In production, store real variables through cPanel rather than committing `.env.local`. Configure Passenger to start `server.cjs`, then restart from cPanel or by the host-supported Passenger restart control.
 
+If using the web installer, `DATABASE_URL`, `AUTH_SECRET`, and `APP_ENCRYPTION_KEY` may initially be absent. The installer generates/persists them in `.runtime-config.json` with restrictive permissions. Configure `LISAN_RUNTIME_CONFIG_PATH` in cPanel when the host provides a more suitable private directory. See `docs/INSTALLER.md`.
+
 ## Domain and TLS
 
 Point the application URL/subdomain to the Node app using cPanel's domain mapping. Issue and renew an AutoSSL certificate, redirect HTTP to HTTPS at the proxy/domain layer, and set `NEXT_PUBLIC_APP_URL` to the canonical HTTPS origin. If Auth.js is behind a reverse proxy, enable trusted-host behavior only after confirming proxy headers and the canonical host.
@@ -56,6 +63,8 @@ The initial storage backend is a private local/cPanel directory. It must be writ
 3. Pull the reviewed release (or deploy its archive).
 4. Run `npm ci`, reviewed Prisma migrations when a future phase adds them, and `npm run build`.
 5. Restart Passenger and run health/smoke checks.
+
+Application updates do not reopen or rerun the first-run installer. Future updates must use the separate controlled migration process; do not delete installation state to apply an update.
 
 For minimal downtime, build in a release directory and switch the configured application root only after validation when the host permits it.
 

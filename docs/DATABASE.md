@@ -1,8 +1,8 @@
 # Database Architecture
 
-## Phase 0 status
+## Installer foundation status
 
-No schema or migration is created in Phase 0. `prisma/` is reserved for a reviewed schema in the database phase. Production targets MySQL/MariaDB through Prisma; Supabase/PostgreSQL is not part of the architecture.
+The first reviewed Prisma migration creates only the installation foundation: application settings, languages, super-admin-compatible users, initial AI provider/credential/model records, and voice profiles. Course, progress, lesson, exercise, and later Auth.js account/session schemas remain deferred. Production targets MySQL/MariaDB through Prisma; Supabase/PostgreSQL is not part of the architecture.
 
 ## Planned domains
 

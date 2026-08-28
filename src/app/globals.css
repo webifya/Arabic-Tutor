@@ -75,3 +75,108 @@ h1 {
   background: rgb(23 107 91 / 9%);
   border-radius: 999px;
 }
+
+.installer-shell {
+  min-height: 100svh;
+  padding: clamp(1rem, 4vw, 3rem);
+}
+
+.installer-panel {
+  width: min(100%, 62rem);
+  margin: 0 auto;
+  overflow: hidden;
+  background: rgb(255 255 255 / 92%);
+  border: 1px solid rgb(23 107 91 / 18%);
+  border-radius: 1.5rem;
+  box-shadow: 0 1.5rem 5rem rgb(23 54 47 / 12%);
+}
+
+.installer-header {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+  padding: 1.5rem clamp(1.25rem, 4vw, 2.5rem);
+  color: white;
+  background: var(--primary);
+}
+
+.installer-header h1 { margin: .2rem 0 0; font-size: clamp(1.5rem, 4vw, 2.25rem); }
+.installer-header .eyebrow { margin: 0; color: #d9eee8; }
+.installer-logo { font-family: var(--font-arabic), sans-serif; font-size: 3.5rem; line-height: 1; }
+
+.installer-progress {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: .25rem;
+  margin: 0;
+  padding: 1rem clamp(1rem, 3vw, 2rem);
+  list-style: none;
+  background: #f4f8f6;
+  border-bottom: 1px solid #dfe9e5;
+}
+
+.installer-progress li {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  color: #688078;
+  background: white;
+  border: 1px solid #cfdad6;
+  border-radius: 999px;
+  font-size: .8rem;
+  font-weight: 700;
+}
+
+.installer-progress li.active { color: white; background: var(--primary); border-color: var(--primary); }
+.installer-progress li span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
+
+.installer-step { display: grid; gap: 1.25rem; padding: clamp(1.5rem, 5vw, 3rem); }
+.installer-step > p { margin: 0; color: #536961; line-height: 1.7; }
+.installer-step button, .button-link {
+  justify-self: start;
+  padding: .85rem 1.25rem;
+  color: white;
+  background: var(--primary);
+  border: 0;
+  border-radius: .7rem;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+.installer-step button:disabled { cursor: not-allowed; opacity: .55; }
+.installer-step .secondary { color: var(--primary); background: #e7f1ee; }
+
+.installer-field { display: grid; gap: .45rem; color: #29463e; font-weight: 700; }
+.installer-field input, .installer-field select {
+  width: 100%;
+  padding: .8rem .9rem;
+  color: var(--foreground);
+  background: white;
+  border: 1px solid #b9cbc5;
+  border-radius: .6rem;
+  font: inherit;
+  font-weight: 400;
+}
+.installer-field input:focus, .installer-field select:focus { outline: 3px solid rgb(23 107 91 / 20%); border-color: var(--primary); }
+
+.readiness-grid, .choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+.readiness-item, .choice { display: flex; gap: .65rem; align-items: center; padding: 1rem; background: #f4f8f6; border: 1px solid #dfe9e5; border-radius: .75rem; }
+.readiness-item span { display: grid; place-items: center; width: 1.6rem; height: 1.6rem; color: white; background: var(--primary); border-radius: 999px; }
+.choice.selected { border-color: var(--primary); background: #e8f3ef; }
+.button-row { display: flex; flex-wrap: wrap; gap: .75rem; }
+.summary-list { display: grid; gap: .65rem; margin: 0; }
+.summary-list div { display: grid; grid-template-columns: minmax(8rem, 1fr) 2fr; gap: 1rem; padding: .75rem 0; border-bottom: 1px solid #e1e9e6; }
+.summary-list dt { color: #60756e; text-transform: capitalize; }
+.summary-list dd { margin: 0; overflow-wrap: anywhere; }
+.installer-error { margin: 1.25rem 1.5rem 0; padding: 1rem; color: #7f1d1d; background: #fef2f2; border: 1px solid #fecaca; border-radius: .75rem; }
+.complete-step { text-align: center; justify-items: center; }
+.success-mark { display: grid; place-items: center; width: 4rem; height: 4rem; color: white; background: var(--primary); border-radius: 999px; font-size: 2rem; }
+.complete-step h2 { margin: 0; }
+
+@media (max-width: 42rem) {
+  .readiness-grid, .choice-grid { grid-template-columns: 1fr; }
+  .installer-progress { grid-template-columns: repeat(4, 1fr); row-gap: .75rem; }
+  .summary-list div { grid-template-columns: 1fr; gap: .25rem; }
+}

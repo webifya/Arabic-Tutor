@@ -1,5 +1,6 @@
 import "server-only";
 import { z } from "zod";
+import { getEffectiveRuntimeConfig } from "@/lib/installer/runtime-config";
 
 const optionalUrl = z.string().url().optional().or(z.literal(""));
 const optionalEncryptionKey = z.string().min(43).optional().or(z.literal(""));
@@ -19,4 +20,12 @@ const serverEnvSchema = z.object({
  * Server-only configuration. Phase-specific services must validate their
  * required keys when initialized; Phase 0 can build without production secrets.
  */
-export const serverEnv = serverEnvSchema.parse(process.env);
+export async function getServerEnv() {
+  const runtime = await getEffectiveRuntimeConfig();
+  return serverEnvSchema.parse({
+    ...process.env,
+    DATABASE_URL: process.env.DATABASE_URL || runtime?.databaseUrl,
+    AUTH_SECRET: process.env.AUTH_SECRET || runtime?.authSecret,
+    APP_ENCRYPTION_KEY: process.env.APP_ENCRYPTION_KEY || runtime?.appEncryptionKey,
+  });
+}

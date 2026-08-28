@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model AppSetting {
+  key       String   @id @db.VarChar(191)
+  value     Json
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("app_settings")
+}
+
+model Language {
+  id        String   @id @db.VarChar(32)
+  code      String   @unique @db.VarChar(16)
+  name      String   @db.VarChar(100)
+  nativeName String  @map("native_name") @db.VarChar(100)
+  direction String   @default("ltr") @db.VarChar(3)
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("languages")
+}
+
+model User {
+  id           String   @id @db.VarChar(32)
+  email        String   @unique @db.VarChar(191)
+  fullName     String   @map("full_name") @db.VarChar(191)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  role         String   @default("student") @db.VarChar(32)
+  emailVerifiedAt DateTime? @map("email_verified_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model AiProvider {
+  id          String   @id @db.VarChar(32)
+  adapterKey  String   @map("adapter_key") @db.VarChar(64)
+  displayName String   @map("display_name") @db.VarChar(191)
+  baseUrl     String?  @map("base_url") @db.VarChar(500)
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  credentials AiProviderCredential[]
+  models      AiProviderModel[]
+  voices      VoiceProfile[]
+
+  @@map("ai_providers")
+}
+
+model AiProviderCredential {
+  id                String   @id @db.VarChar(32)
+  providerId        String   @map("provider_id") @db.VarChar(32)
+  label             String   @db.VarChar(191)
+  encryptedEnvelope Json     @map("encrypted_envelope")
+  keyVersion        Int      @default(1) @map("key_version")
+  createdAt         DateTime @default(now()) @map("created_at")
+  rotatedAt         DateTime? @map("rotated_at")
+  provider          AiProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([providerId])
+  @@map("ai_provider_credentials")
+}
+
+model AiProviderModel {
+  id            String   @id @db.VarChar(32)
+  providerId    String   @map("provider_id") @db.VarChar(32)
+  providerModelId String @map("provider_model_id") @db.VarChar(191)
+  displayName   String   @map("display_name") @db.VarChar(191)
+  capabilities  Json
+  enabled       Boolean  @default(true)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  provider      AiProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, providerModelId])
+  @@map("ai_provider_models")
+}
+
+model VoiceProfile {
+  id              String   @id @db.VarChar(32)
+  name            String   @db.VarChar(191)
+  providerId      String?  @map("provider_id") @db.VarChar(32)
+  providerVoiceId String?  @map("provider_voice_id") @db.VarChar(191)
+  languageCode    String   @map("language_code") @db.VarChar(16)
+  speakingRate    Decimal  @default(1.00) @map("speaking_rate") @db.Decimal(4, 2)
+  styleInstructions String? @map("style_instructions") @db.Text
+  purpose         String   @db.VarChar(64)
+  enabled         Boolean  @default(true)
+  providerMetadata Json?   @map("provider_metadata")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  provider        AiProvider? @relation(fields: [providerId], references: [id], onDelete: SetNull)
+
+  @@index([providerId])
+  @@map("voice_profiles")
+}

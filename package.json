@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build && node scripts/prepare-standalone.mjs",
+    "build": "next build --webpack && node scripts/prepare-standalone.mjs",
     "start": "node server.cjs",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@prisma/client": "7.10.0",
+    "mysql2": "3.15.3",
     "next": "16.3.3",
     "next-auth": "4.24.15",
     "openai": "6.32.0",

@@ -7,12 +7,13 @@
 - Vitest, Playwright configuration, lint/typecheck/build scripts, GitHub CI.
 - Standalone Node build and Passenger entrypoint.
 - Environment, architecture, database, security, and deployment documentation.
+- Secure cPanel first-run bootstrap mode, private runtime configuration, fixed migrations/base seed, and initial super-admin login.
 
-No database schema, auth flows, product routes, course data, AI calls, speech processing, or admin functionality belongs in Phase 0.
+No course data, learning product routes, AI tutoring calls, speech processing, or full admin functionality belongs in the foundation. The installer is the narrow exception needed to make cPanel deployment operational.
 
 ## Phase 1 — Data and identity foundation
 
-Confirm production MariaDB/MySQL capabilities; design and migrate language, user/profile, role, Auth.js, settings, audit, and foundational course tables. Include reviewed AI provider/credential, provider model/capability, feature route/fallback, usage/check, voice profile/assignment, and teaching-style schemas. Implement authentication, email verification/reset, authorization primitives, storage provider interface, deployment-safe database access, and the encrypted-secret service using `APP_ENCRYPTION_KEY`. Do not build the provider admin UI or call vendor APIs in this phase.
+Confirm production MariaDB/MySQL capabilities; extend the installer foundation with user profiles, complete Auth.js account/session requirements, roles, audit, and foundational course tables. Add provider model/capability, feature route/fallback, usage/check, voice assignment, and teaching-style schemas. Implement registration, email verification/reset, authorization primitives, storage provider interface, deployment-safe Prisma repositories, and credential rotation. Do not build the full provider admin UI or learning AI calls in this phase.
 
 ## Phase 2 — Course and content engine
 

@@ -24,11 +24,11 @@ Lisan is a multilingual learning platform whose first course is Bangla → Arabi
 
 ## Database policy
 
-Use MySQL/MariaDB through Prisma. Never edit a deployed database manually. Schema changes require reviewed Prisma migrations, backward-compatible rollout planning, and documented backup/rollback steps. Do not create the application schema during Phase 0; see `docs/DATABASE.md`.
+Use MySQL/MariaDB through Prisma. Never edit a deployed database manually. Schema changes require reviewed Prisma migrations, backward-compatible rollout planning, and documented backup/rollback steps. The first-run migration is limited to installer/identity/provider foundations; see `docs/DATABASE.md`.
 
 ## Security and deployment
 
-Never commit secrets, `.env` files, production data, or learner audio. Authorize every server mutation, score progress server-side, rate-limit expensive/sensitive endpoints, and isolate user-owned media. Build with `output: "standalone"`; support cPanel Passenger and normal Node.js without Vercel-only services. See `docs/SECURITY.md`, `docs/AI-SYSTEM.md`, and `docs/DEPLOY-CPANEL.md`.
+Never commit secrets, `.env` files, `.runtime-config.json`, production data, or learner audio. Installer actions must recheck completion state, validate input, preserve fixed migration commands, and never expose reset/secret/SQL/shell/path controls. Authorize every post-install server mutation, score progress server-side, rate-limit expensive/sensitive endpoints, and isolate user-owned media. Build with `output: "standalone"`; support cPanel Passenger and normal Node.js without Vercel-only services. See `docs/SECURITY.md`, `docs/INSTALLER.md`, `docs/AI-SYSTEM.md`, and `docs/DEPLOY-CPANEL.md`.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

@@ -4,7 +4,7 @@
 
 Lisan is an AI-assisted language-learning platform. Its first product is Arabic Foundation for Bangla-speaking learners, while its course, exercise, progress, localization, speech, and AI boundaries are designed for future language pairs.
 
-This repository currently contains **Phase 0 only**: the application and repository foundation. Authentication, database models and migrations, course content, learning features, AI calls, speech processing, and admin features are intentionally not implemented yet.
+This repository contains the application foundation plus a narrow secure first-run cPanel installer. Course content, learning features, AI tutoring, speech processing, and full administration remain intentionally deferred.
 
 ## Stack
 
@@ -44,6 +44,7 @@ Playwright browser installation may be required once: `npx playwright install ch
 
 - [Architecture](docs/ARCHITECTURE.md)
 - [AI, speech, and voice system](docs/AI-SYSTEM.md)
+- [First-run web installer](docs/INSTALLER.md)
 - [Database design](docs/DATABASE.md)
 - [Implementation plan](docs/IMPLEMENTATION-PLAN.md)
 - [cPanel deployment](docs/DEPLOY-CPANEL.md)

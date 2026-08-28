@@ -19,6 +19,10 @@
 /storage/*
 !/storage/.gitkeep
 
+# first-run installer runtime state (contains secrets)
+/.runtime-config.json
+/.runtime/
+
 # logs and OS/editor files
 *.log
 .DS_Store
