@@ -23,15 +23,19 @@ Implemented the localized authenticated learner shell, deterministic onboarding,
 
 Implemented a published Arabic Foundation path with reusable validated lesson blocks, Arabic typography/content primitives, ten letter records, first harakat and greeting content, server-scored multiple choice, persisted attempts, deterministic lesson access, transactional completion, idempotent XP, learner-local activity, next-lesson advancement, and real dashboard/course progress. Advanced exercises, goals/review scheduling, and achievements remain later work.
 
-## Phase 4 — Audio and pronunciation
+## Phase 4 — Reusable exercise engine (complete)
+
+Implemented a single server-authoritative system for multiple choice, matching, reorder, fill blank, deterministic translation, listen contracts, flashcard review checks, and future speech placeholders. It includes private/public payload contracts, per-exercise normalization and diacritic policy, persisted idempotent attempts, learner-friendly retries, lesson completion rules and scoring, review signals, localized accessible mobile UI, and migrated Phase 3 attempts. Real audio and speech remain explicitly unavailable.
+
+## Phase 5 — Audio and pronunciation
 
 Implement microphone capture, upload limits, temporary processing, provider-neutral STT/TTS/pronunciation adapters, voice-profile resolution, deterministic comparison, honest confidence handling, Bangla coaching, reference audio caching, derived result storage, and privacy tests. Do not claim phoneme accuracy without a provider that measures it.
 
-## Phase 5 — Review and AI tutor
+## Phase 6 — Review and AI tutor
 
 Implement documented spaced repetition, review sessions, provider-neutral server-side tutor/content generation with constrained context and structured outputs, feature routing/fallback, rate/cost controls, safety policies, teaching-style resolution, and progress isolation.
 
-## Phase 6 — Admin and production hardening
+## Phase 7 — Admin and production hardening
 
 Implement admin content workflows and AI provider management: add/rotate credentials, test connections, enable providers/models, choose per-feature defaults and fallbacks, manage voice profiles/assignments, and view basic usage. Add publishing/review, audit tooling, observability, backup/restore drills, accessibility/performance/security review, load tests, and full cPanel release rehearsal.
 

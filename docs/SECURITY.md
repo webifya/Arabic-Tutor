@@ -59,3 +59,11 @@ Dashboard reads are side-effect free. Activity is recorded only by explicit serv
 Lesson reads require an active student session, active course enrollment, a published course/level/unit/lesson, and deterministic unlocked state. Draft/review content and locked lessons return a safe not-found response. JSON blocks are untrusted database content until their type-specific Zod schema succeeds; unknown objects are never spread into UI components or interpreted as HTML.
 
 Multiple-choice correct option IDs are stripped before serialization. The server action re-reads the authoritative published block and stores the result. Completion never trusts a browser percentage, correctness flag, reward, next lesson, user ID, or course ID. It locks the authorized enrollment, verifies required correct attempts, and writes progress, XP, daily activity, and current lesson transactionally. The XP ledger uniqueness constraint and existing completion state prevent repeat rewards.
+
+## Phase 4 exercise posture
+
+Browser submissions are strict, bounded objects containing only exercise ID, idempotency request ID, learner response, and optional bounded duration. Unknown fields—including correctness, score, XP, mastery, progress, answer key, or user identity—are rejected. Public payload builders remove correct options, accepted text, correct order, matching authority, and private explanations before React receives data.
+
+Every submission rechecks the authenticated active student, active enrollment, published course hierarchy, deterministic lesson unlock, exercise status, and lesson ownership. Scoring, retry counts, lesson score, feedback, review signals, activity, completion, and XP are derived server-side. Transactional locks plus unique request/attempt constraints protect double-click and network retries; durable submission rate limits constrain abuse. Raw future audio is not required by attempt rows, and unavailable audio/speech activities cannot be submitted.
+
+Text normalization is exercise-configured: Unicode NFKC and surrounding whitespace are safe defaults, non-Arabic case folding is opt-in, and Arabic diacritics are required, optional, or ignored per exercise. No global tashkeel removal is applied. Attempts retain only bounded learning responses and derived values; services and logs must not expose another learner’s records.

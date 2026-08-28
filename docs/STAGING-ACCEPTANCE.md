@@ -118,7 +118,7 @@ npm run build
 - [ ] Complete installation once.
 - [ ] Confirm the UI reports completion and no credential appears in the response or cPanel logs.
 - [ ] After installation, add the installed `DATABASE_URL` to the private cPanel Node.js environment so future CLI migrations do not require placing it in shell history. Restart the application after changing environment variables.
-- [ ] Confirm all four migrations were applied:
+- [ ] Confirm all five migrations were applied:
 
 ```bash
 npx prisma migrate status
@@ -131,6 +131,7 @@ Expected migrations:
 20260828000200_phase1_core_domain
 20260828000300_phase2_learner_experience
 20260829000100_phase3_arabic_lesson_engine
+20260829000200_phase4_exercise_engine
 ```
 
 - [ ] In MySQL, verify `_prisma_migrations` shows both successful and no failed/rolled-back entry.
@@ -142,11 +143,18 @@ Expected migrations:
 Run redacted read-only checks:
 
 ```sql
-SHOW TABLE STATUS WHERE Name IN ('users','languages','courses','lesson_blocks');
+SHOW TABLE STATUS WHERE Name IN ('users','languages','courses','lesson_blocks','exercises','exercise_attempts','exercise_review_signals');
 SHOW FULL COLUMNS FROM languages;
 SELECT code, name, native_name, direction FROM languages ORDER BY code;
 SELECT slug, source_language_id, target_language_id, status FROM courses WHERE slug='arabic-foundation-bn';
 ```
+
+- [ ] Confirm Phase 3 attempts were migrated and `lesson_question_attempts` no longer exists.
+- [ ] As an enrolled student, submit a wrong answer, retry correctly, refresh, complete the lesson, and confirm exactly two attempts, one completion, and one lesson XP ledger entry.
+- [ ] Confirm a reused request ID returns the original result without a new attempt, review update, daily activity increment, completion, or XP.
+- [ ] Confirm locked/arbitrary exercises, client-supplied score/correctness, malformed JSON, and oversized text are safely rejected.
+- [ ] Inspect the browser response/state: no correct option, accepted answers, correct order, or matching authority is present before submission.
+- [ ] Confirm listen and speech cards with no real asset/provider are visibly disabled and create no attempt.
 
 - [ ] Confirm Bengali `বাংলা` and Arabic `العربية` round-trip exactly.
 - [ ] Confirm tables use `utf8mb4` and the expected collation.

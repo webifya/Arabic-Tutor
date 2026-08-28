@@ -2,7 +2,7 @@
 
 ## Scope and principles
 
-Phase 3 adds a database-driven course and lesson loop to the authenticated learner journey established in Phases 0–2. Lisan begins with Bangla → Arabic Foundation, but language pairs, learner preferences, progress records, lesson blocks, authentication, storage, AI, and speech remain reusable.
+Phase 4 adds a reusable, server-authoritative exercise engine to the authenticated, database-driven learner journey established in Phases 0–3. Lisan begins with Bangla → Arabic Foundation, but language pairs, learner preferences, progress records, lesson blocks, exercises, authentication, storage, AI, and speech remain reusable.
 
 The production runtime is a long-lived standard Node.js process under cPanel Passenger. Next.js uses App Router and standalone output; core behavior must not depend on Edge or Vercel services.
 
@@ -50,9 +50,11 @@ The dashboard reads enrollment, published lesson counts, lesson progress, daily 
 
 The stable hierarchy is Course → Level → Unit → Lesson → ordered Lesson Blocks. A lesson route never selects a React page by lesson slug. It loads an enrolled, fully published hierarchy; checks that the lesson is completed or the first incomplete lesson; validates each versioned JSON payload with its block-specific Zod schema; enriches referenced letter, phrase, and vocabulary records; and passes only normalized data to reusable components.
 
-Phase 3 supports heading, explanation, Arabic text/letter, vocabulary, phrase, example, tip, audio/pronunciation placeholders, multiple choice, and continue blocks. Unknown or invalid blocks fail closed and are not rendered. Audio controls explicitly remain disabled. Future block types can be added through a schema, normalized public contract, renderer, and completion policy without changing the lesson route.
+Lesson blocks support heading, explanation, Arabic text/letter, vocabulary, phrase, example, tip, audio/pronunciation placeholders, exercise references, and continue. Unknown or invalid blocks fail closed. Exercise blocks resolve a stable exercise key and never carry an authoritative answer in their browser payload.
 
-Multiple-choice answer keys remain in server-loaded block content and are removed from the public payload. An answer action re-authorizes the learner, re-loads the published authoritative block, validates the selected option, and stores the attempt. Lesson completion runs inside one transaction: verify enrollment/unlock state and required questions, upsert completion once, insert XP idempotently, record daily activity only on first completion, and advance enrollment to the first incomplete published lesson.
+The Phase 4 engine supports multiple choice, matching, reorder, fill blank, deterministic translation, listen-select/listen-type contracts, flashcard checks, and read-aloud/speak placeholders. It loads all lesson exercises in one query, validates private payloads with type-specific Zod contracts, creates a redacted public representation, and scores only on the server. Listen activities with no asset and all speech placeholders are unavailable; no simulated playback, capture, or score is emitted.
+
+Each submission re-authorizes the active student, enrollment, published hierarchy, unlock state, and exercise ownership. A transaction locks the authoritative exercise, rechecks the request ID, enforces retry policy, evaluates normalized input, persists the attempt, updates the review aggregate and meaningful daily activity, and returns localized feedback. Unique request and attempt keys make retries safe. Completion separately evaluates attempted/correct requirements and minimum score, records the lesson score, awards lesson XP once, and advances enrollment. Completion, score, and future mastery remain separate concepts. See `docs/EXERCISE-ENGINE.md`.
 
 ## Provider boundaries
 

@@ -2,7 +2,17 @@
 
 ## Migration status
 
-The immutable first migration creates the installer foundation. Phase 1 adds identity and core domain records, Phase 2 adds learner activity/progress, and additive Phase 3 adds content metadata, question attempts, completion configuration, and reviewed initial course content. Fresh installer runs and existing installations use the same ordered migration history.
+The immutable first migration creates the installer foundation. Phases 1–3 add identity, learner progress, content metadata, completion configuration, and reviewed course content. The additive Phase 4 migration generalizes exercises and attempts without editing earlier migrations. Fresh installer runs and existing installations use the same ordered migration history through `prisma migrate deploy`.
+
+## Implemented Phase 4 exercise records
+
+- `exercises` stores a stable key, type, lesson/block ownership, language pair, difficulty, order, required/status flags, validated scoring/retry configuration, and private structured payload.
+- `exercise_attempts` stores learner/request identity, monotonic attempt number, bounded submitted and safely normalized JSON, server correctness/score, and optional reliable timing. Unique `(user_id, request_id)` and `(user_id, exercise_id, attempt_number)` keys provide retry safety.
+- `exercise_review_signals` aggregates attempts, correct history, first/last correct activity, consecutive correct count, a bounded difficulty signal, and `needs_review`. It is input to a future scheduler, not a spaced-repetition schedule.
+- `lesson_progress.score_percent` records the server-calculated lesson score separately from completion.
+- `daily_learning_activities.exercise_attempts` increments only for accepted submissions.
+
+The migration maps the Phase 3 question block to a stable exercise, copies prior attempts, creates review aggregates, and then removes `lesson_question_attempts`. There is one scoring/attempt system. Exercise seed keys and block references are stable and use convergent upserts; existing lesson and progress identities are preserved.
 
 ## Implemented Phase 3 content records
 
@@ -10,7 +20,7 @@ The immutable first migration creates the installer foundation. Phase 1 adds ide
 - `lesson_blocks.required` distinguishes completion-relevant blocks while existing `schema_version`, `block_type`, `position`, JSON content, and publication status remain authoritative.
 - `arabic_letters` stores stable letter identity, contextual forms, conservative Bangla sound guidance, makhraj region/sub-region, and ordering. It is content, not frontend constants.
 - `vocabulary_items` and `phrases` keep practical editable fields together while referencing a language and retaining future multilingual expansion paths.
-- `lesson_question_attempts` records selected option, server result, learner, stable lesson/block, and time. It is the minimum Phase 3 attempt foundation, not the complete exercise engine.
+- Phase 3 `lesson_question_attempts` is migrated into Phase 4 `exercise_attempts`; new code must not recreate or query the retired table.
 
 Stable seed IDs/keys use the `c3_` prefix because published blocks and learner attempts require durable references. The Phase 3 migration uses unique slugs/keys and `ON DUPLICATE KEY UPDATE`; rerunning equivalent seed statements converges rather than duplicating content.
 

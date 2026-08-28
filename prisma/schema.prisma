@@ -31,6 +31,8 @@ model Language {
   targetCourses         Course[]         @relation("TargetLanguage")
   vocabularyItems       VocabularyItem[]
   phrases               Phrase[]
+  sourceExercises       Exercise[]       @relation("ExerciseSourceLanguage")
+  targetExercises       Exercise[]       @relation("ExerciseTargetLanguage")
 
   @@map("languages")
 }
@@ -68,7 +70,8 @@ model User {
   dailyActivities          DailyLearningActivity[]
   xpTransactions           XpTransaction[]
   lessonProgress           LessonProgress[]
-  lessonQuestionAttempts   LessonQuestionAttempt[]
+  exerciseAttempts         ExerciseAttempt[]
+  exerciseReviewSignals    ExerciseReviewSignal[]
   createdAt                DateTime                @default(now()) @map("created_at")
   updatedAt                DateTime                @updatedAt @map("updated_at")
 
@@ -256,22 +259,22 @@ model CourseUnit {
 }
 
 model Lesson {
-  id                    String                  @id @db.VarChar(32)
-  unitId                String                  @map("unit_id") @db.VarChar(32)
-  slug                  String                  @db.VarChar(191)
-  title                 String                  @db.VarChar(191)
+  id                    String             @id @db.VarChar(32)
+  unitId                String             @map("unit_id") @db.VarChar(32)
+  slug                  String             @db.VarChar(191)
+  title                 String             @db.VarChar(191)
   position              Int
-  status                String                  @default("draft") @db.VarChar(16)
-  activityType          String?                 @map("activity_type") @db.VarChar(64)
-  completionRule        Json?                   @map("completion_rule")
-  xpReward              Int                     @default(10) @map("xp_reward")
-  createdAt             DateTime                @default(now()) @map("created_at")
-  updatedAt             DateTime                @updatedAt @map("updated_at")
-  unit                  CourseUnit              @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  status                String             @default("draft") @db.VarChar(16)
+  activityType          String?            @map("activity_type") @db.VarChar(64)
+  completionRule        Json?              @map("completion_rule")
+  xpReward              Int                @default(10) @map("xp_reward")
+  createdAt             DateTime           @default(now()) @map("created_at")
+  updatedAt             DateTime           @updatedAt @map("updated_at")
+  unit                  CourseUnit         @relation(fields: [unitId], references: [id], onDelete: Cascade)
   blocks                LessonBlock[]
-  currentForEnrollments CourseEnrollment[]      @relation("CurrentLesson")
+  currentForEnrollments CourseEnrollment[] @relation("CurrentLesson")
   progress              LessonProgress[]
-  attempts              LessonQuestionAttempt[]
+  exercises             Exercise[]
 
   @@unique([unitId, slug])
   @@unique([unitId, position])
@@ -280,18 +283,18 @@ model Lesson {
 }
 
 model LessonBlock {
-  id            String                  @id @db.VarChar(32)
-  lessonId      String                  @map("lesson_id") @db.VarChar(32)
-  blockType     String                  @map("block_type") @db.VarChar(64)
+  id            String     @id @db.VarChar(32)
+  lessonId      String     @map("lesson_id") @db.VarChar(32)
+  blockType     String     @map("block_type") @db.VarChar(64)
   position      Int
-  schemaVersion Int                     @default(1) @map("schema_version")
-  required      Boolean                 @default(true)
+  schemaVersion Int        @default(1) @map("schema_version")
+  required      Boolean    @default(true)
   content       Json
-  status        String                  @default("draft") @db.VarChar(16)
-  createdAt     DateTime                @default(now()) @map("created_at")
-  updatedAt     DateTime                @updatedAt @map("updated_at")
-  lesson        Lesson                  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  attempts      LessonQuestionAttempt[]
+  status        String     @default("draft") @db.VarChar(16)
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @updatedAt @map("updated_at")
+  lesson        Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  exercises     Exercise[]
 
   @@unique([lessonId, position])
   @@index([lessonId, status])
@@ -362,20 +365,77 @@ model Phrase {
   @@map("phrases")
 }
 
-model LessonQuestionAttempt {
-  id               String      @id @db.VarChar(32)
-  userId           String      @map("user_id") @db.VarChar(32)
-  lessonId         String      @map("lesson_id") @db.VarChar(32)
-  blockId          String      @map("block_id") @db.VarChar(32)
-  selectedOptionId String      @map("selected_option_id") @db.VarChar(100)
-  correct          Boolean
-  attemptedAt      DateTime    @default(now()) @map("attempted_at")
-  user             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lesson           Lesson      @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  block            LessonBlock @relation(fields: [blockId], references: [id], onDelete: Cascade)
+model Exercise {
+  id               String                 @id @db.VarChar(32)
+  stableKey        String                 @unique @map("stable_key") @db.VarChar(100)
+  lessonId         String                 @map("lesson_id") @db.VarChar(32)
+  blockId          String?                @map("block_id") @db.VarChar(32)
+  exerciseType     String                 @map("exercise_type") @db.VarChar(64)
+  prompt           String                 @db.Text
+  sourceLanguageId String?                @map("source_language_id") @db.VarChar(32)
+  targetLanguageId String?                @map("target_language_id") @db.VarChar(32)
+  difficulty       Int                    @default(1)
+  required         Boolean                @default(true)
+  position         Int
+  scoringConfig    Json                   @map("scoring_config")
+  retryConfig      Json                   @map("retry_config")
+  payload          Json
+  status           String                 @default("draft") @db.VarChar(16)
+  createdAt        DateTime               @default(now()) @map("created_at")
+  updatedAt        DateTime               @updatedAt @map("updated_at")
+  lesson           Lesson                 @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  block            LessonBlock?           @relation(fields: [blockId], references: [id], onDelete: SetNull)
+  sourceLanguage   Language?              @relation("ExerciseSourceLanguage", fields: [sourceLanguageId], references: [id], onDelete: SetNull)
+  targetLanguage   Language?              @relation("ExerciseTargetLanguage", fields: [targetLanguageId], references: [id], onDelete: SetNull)
+  attempts         ExerciseAttempt[]
+  reviewSignals    ExerciseReviewSignal[]
 
-  @@index([userId, lessonId, blockId, correct])
-  @@map("lesson_question_attempts")
+  @@unique([lessonId, position])
+  @@index([lessonId, status, required])
+  @@index([blockId])
+  @@map("exercises")
+}
+
+model ExerciseAttempt {
+  id                 String    @id @db.VarChar(32)
+  userId             String    @map("user_id") @db.VarChar(32)
+  exerciseId         String    @map("exercise_id") @db.VarChar(32)
+  requestId          String    @map("request_id") @db.VarChar(64)
+  attemptNumber      Int       @map("attempt_number")
+  submittedResponse  Json      @map("submitted_response")
+  normalizedResponse Json?     @map("normalized_response")
+  correct            Boolean
+  score              Int
+  startedAt          DateTime? @map("started_at")
+  submittedAt        DateTime  @default(now()) @map("submitted_at")
+  durationMs         Int?      @map("duration_ms")
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercise           Exercise  @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, requestId])
+  @@unique([userId, exerciseId, attemptNumber])
+  @@index([userId, exerciseId, submittedAt])
+  @@map("exercise_attempts")
+}
+
+model ExerciseReviewSignal {
+  id                 String    @id @db.VarChar(32)
+  userId             String    @map("user_id") @db.VarChar(32)
+  exerciseId         String    @map("exercise_id") @db.VarChar(32)
+  attemptsCount      Int       @default(0) @map("attempts_count")
+  correctCount       Int       @default(0) @map("correct_count")
+  consecutiveCorrect Int       @default(0) @map("consecutive_correct")
+  firstCorrectAt     DateTime? @map("first_correct_at")
+  lastAttemptedAt    DateTime  @map("last_attempted_at")
+  needsReview        Boolean   @default(false) @map("needs_review")
+  difficultySignal   Int       @default(0) @map("difficulty_signal")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercise           Exercise  @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, exerciseId])
+  @@index([userId, needsReview, lastAttemptedAt])
+  @@map("exercise_review_signals")
 }
 
 model CourseEnrollment {
@@ -405,6 +465,7 @@ model DailyLearningActivity {
   minutes          Int      @default(0)
   lessonsCompleted Int      @default(0) @map("lessons_completed")
   wordsLearned     Int      @default(0) @map("words_learned")
+  exerciseAttempts Int      @default(0) @map("exercise_attempts")
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
   user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -430,15 +491,16 @@ model XpTransaction {
 }
 
 model LessonProgress {
-  id          String    @id @db.VarChar(32)
-  userId      String    @map("user_id") @db.VarChar(32)
-  lessonId    String    @map("lesson_id") @db.VarChar(32)
-  status      String    @default("not_started") @db.VarChar(32)
-  startedAt   DateTime? @map("started_at")
-  completedAt DateTime? @map("completed_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lesson      Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  id           String    @id @db.VarChar(32)
+  userId       String    @map("user_id") @db.VarChar(32)
+  lessonId     String    @map("lesson_id") @db.VarChar(32)
+  status       String    @default("not_started") @db.VarChar(32)
+  startedAt    DateTime? @map("started_at")
+  completedAt  DateTime? @map("completed_at")
+  scorePercent Int?      @map("score_percent")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson       Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
   @@unique([userId, lessonId])
   @@index([lessonId, status])

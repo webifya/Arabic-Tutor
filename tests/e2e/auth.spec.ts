@@ -50,6 +50,9 @@ test("new student completes onboarding and reaches the course overview", async (
   await expect(page.getByText("العربية")).toBeVisible();
   await page.getByRole("link", { name: /আরবি লেখা: প্রথম পরিচয়/ }).click();
   await expect(page).toHaveURL(/\/learn\/lesson\/c3_l01/);
+  await page.getByLabel("বাম থেকে ডানে").check();
+  await page.getByRole("button", { name: "উত্তর যাচাই করুন" }).click();
+  await expect(page.getByText(/সঠিক নয়/)).toBeVisible();
   await page.getByLabel("ডান থেকে বামে").check();
   await page.getByRole("button", { name: "উত্তর যাচাই করুন" }).click();
   await expect(page.getByText(/সঠিক উত্তর/)).toBeVisible();
