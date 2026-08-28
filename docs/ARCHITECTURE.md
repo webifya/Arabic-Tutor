@@ -2,7 +2,7 @@
 
 ## Scope and principles
 
-Phase 2 adds the first complete authenticated learner journey to the data and identity boundaries established in Phases 0–1. Lisan begins with Bangla → Arabic Foundation, but language pairs, learner preferences, progress records, lesson blocks, authentication, storage, AI, and speech remain reusable.
+Phase 3 adds a database-driven course and lesson loop to the authenticated learner journey established in Phases 0–2. Lisan begins with Bangla → Arabic Foundation, but language pairs, learner preferences, progress records, lesson blocks, authentication, storage, AI, and speech remain reusable.
 
 The production runtime is a long-lived standard Node.js process under cPanel Passenger. Next.js uses App Router and standalone output; core behavior must not depend on Edge or Vercel services.
 
@@ -45,6 +45,14 @@ The learner shell, onboarding, dashboard, course overview, profile, and settings
 Authenticated students who have not completed onboarding are redirected to `/learn/onboarding`. Completion validates a fixed questionnaire, stores a deterministic recommended starting-point key, and idempotently ensures enrollment in the initial course. A recommendation does not create progress or pretend that a lesson was completed.
 
 The dashboard reads enrollment, published lesson counts, lesson progress, daily activity, XP ledger, and learner-local dates from MySQL. Merely rendering or refreshing a page never creates activity, XP, a streak, or progress. Future lesson completion services must write those records transactionally and use stable source IDs so duplicate requests cannot award XP twice. The course overview requires an active enrollment and exposes only published levels, units, and lessons; draft content remains hidden even when the course container itself is still being prepared.
+
+## Lesson engine
+
+The stable hierarchy is Course → Level → Unit → Lesson → ordered Lesson Blocks. A lesson route never selects a React page by lesson slug. It loads an enrolled, fully published hierarchy; checks that the lesson is completed or the first incomplete lesson; validates each versioned JSON payload with its block-specific Zod schema; enriches referenced letter, phrase, and vocabulary records; and passes only normalized data to reusable components.
+
+Phase 3 supports heading, explanation, Arabic text/letter, vocabulary, phrase, example, tip, audio/pronunciation placeholders, multiple choice, and continue blocks. Unknown or invalid blocks fail closed and are not rendered. Audio controls explicitly remain disabled. Future block types can be added through a schema, normalized public contract, renderer, and completion policy without changing the lesson route.
+
+Multiple-choice answer keys remain in server-loaded block content and are removed from the public payload. An answer action re-authorizes the learner, re-loads the published authoritative block, validates the selected option, and stores the attempt. Lesson completion runs inside one transaction: verify enrollment/unlock state and required questions, upsert completion once, insert XP idempotently, record daily activity only on first completion, and advance enrollment to the first incomplete published lesson.
 
 ## Provider boundaries
 

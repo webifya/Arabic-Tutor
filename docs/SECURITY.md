@@ -53,3 +53,9 @@ The local driver accepts only declared media purposes and allowlisted MIME types
 Onboarding, profile, and settings mutations derive the learner ID and student role from the server session; they accept no browser-supplied user ID, role, status, XP, progress, or enrollment identity. Profile updates resolve enabled language codes server-side. Course reads require an active enrollment and filter nested content to published records.
 
 Dashboard reads are side-effect free. Activity is recorded only by explicit server workflows, and XP uses a database uniqueness key for duplicate protection. Learner-local date calculations use the stored IANA timezone while database timestamps remain UTC. Future lesson/exercise endpoints must preserve these boundaries and update enrollment, progress, daily activity, and XP in a reviewed transaction.
+
+## Phase 3 lesson posture
+
+Lesson reads require an active student session, active course enrollment, a published course/level/unit/lesson, and deterministic unlocked state. Draft/review content and locked lessons return a safe not-found response. JSON blocks are untrusted database content until their type-specific Zod schema succeeds; unknown objects are never spread into UI components or interpreted as HTML.
+
+Multiple-choice correct option IDs are stripped before serialization. The server action re-reads the authoritative published block and stores the result. Completion never trusts a browser percentage, correctness flag, reward, next lesson, user ID, or course ID. It locks the authorized enrollment, verifies required correct attempts, and writes progress, XP, daily activity, and current lesson transactionally. The XP ledger uniqueness constraint and existing completion state prevent repeat rewards.

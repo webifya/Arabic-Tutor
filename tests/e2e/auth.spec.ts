@@ -48,4 +48,12 @@ test("new student completes onboarding and reaches the course overview", async (
   await expect(page).toHaveURL(/\/learn\/course\/arabic-foundation-bn/);
   await expect(page.getByText("বাংলা")).toBeVisible();
   await expect(page.getByText("العربية")).toBeVisible();
+  await page.getByRole("link", { name: /আরবি লেখা: প্রথম পরিচয়/ }).click();
+  await expect(page).toHaveURL(/\/learn\/lesson\/c3_l01/);
+  await page.getByLabel("ডান থেকে বামে").check();
+  await page.getByRole("button", { name: "উত্তর যাচাই করুন" }).click();
+  await expect(page.getByText(/সঠিক উত্তর/)).toBeVisible();
+  await page.getByRole("button", { name: "পাঠ সম্পন্ন করুন" }).click();
+  await expect(page).toHaveURL(/\/learn\/lesson\/c3_l02/);
+  await expect(page.getByText("ا")).toBeVisible();
 });

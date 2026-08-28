@@ -2,7 +2,19 @@
 
 ## Migration status
 
-The immutable first migration creates the installer foundation. The Phase 1 migration expands existing users in place and adds identity recovery, course catalog/enrollment, AI feature routing/fallback, voice assignment, teaching style, media metadata, and database rate-limit tables. It safely seeds `bn`, `ar`, `en`, plus draft course `arabic-foundation-bn`. The additive Phase 2 migration adds learner onboarding preferences, daily activity, XP ledger, and lesson progress. Fresh installer runs and existing installations use the same ordered migration history.
+The immutable first migration creates the installer foundation. Phase 1 adds identity and core domain records, Phase 2 adds learner activity/progress, and additive Phase 3 adds content metadata, question attempts, completion configuration, and reviewed initial course content. Fresh installer runs and existing installations use the same ordered migration history.
+
+## Implemented Phase 3 content records
+
+- `lessons.completion_rule` stores a versionable completion policy and `xp_reward` stores the modest first-completion reward.
+- `lesson_blocks.required` distinguishes completion-relevant blocks while existing `schema_version`, `block_type`, `position`, JSON content, and publication status remain authoritative.
+- `arabic_letters` stores stable letter identity, contextual forms, conservative Bangla sound guidance, makhraj region/sub-region, and ordering. It is content, not frontend constants.
+- `vocabulary_items` and `phrases` keep practical editable fields together while referencing a language and retaining future multilingual expansion paths.
+- `lesson_question_attempts` records selected option, server result, learner, stable lesson/block, and time. It is the minimum Phase 3 attempt foundation, not the complete exercise engine.
+
+Stable seed IDs/keys use the `c3_` prefix because published blocks and learner attempts require durable references. The Phase 3 migration uses unique slugs/keys and `ON DUPLICATE KEY UPDATE`; rerunning equivalent seed statements converges rather than duplicating content.
+
+Completion progress references stable `lessons.id`, not a block version. Editing published content should create/review a new block set or increment block schema/content deliberately, while keeping the lesson identity stable. A future editorial UI must not silently reinterpret already completed lessons; material completion-rule changes require an explicit migration/version policy.
 
 ## Implemented Phase 2 learner records
 

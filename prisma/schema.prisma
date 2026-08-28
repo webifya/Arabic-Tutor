@@ -17,18 +17,20 @@ model AppSetting {
 }
 
 model Language {
-  id                    String   @id @db.VarChar(32)
-  code                  String   @unique @db.VarChar(16)
-  name                  String   @db.VarChar(100)
-  nativeName            String   @map("native_name") @db.VarChar(100)
-  direction             String   @default("ltr") @db.VarChar(3)
-  enabled               Boolean  @default(true)
-  createdAt             DateTime @default(now()) @map("created_at")
-  updatedAt             DateTime @updatedAt @map("updated_at")
-  nativeLanguageUsers   User[]   @relation("NativeLanguage")
-  learningLanguageUsers User[]   @relation("LearningLanguage")
-  sourceCourses         Course[] @relation("SourceLanguage")
-  targetCourses         Course[] @relation("TargetLanguage")
+  id                    String           @id @db.VarChar(32)
+  code                  String           @unique @db.VarChar(16)
+  name                  String           @db.VarChar(100)
+  nativeName            String           @map("native_name") @db.VarChar(100)
+  direction             String           @default("ltr") @db.VarChar(3)
+  enabled               Boolean          @default(true)
+  createdAt             DateTime         @default(now()) @map("created_at")
+  updatedAt             DateTime         @updatedAt @map("updated_at")
+  nativeLanguageUsers   User[]           @relation("NativeLanguage")
+  learningLanguageUsers User[]           @relation("LearningLanguage")
+  sourceCourses         Course[]         @relation("SourceLanguage")
+  targetCourses         Course[]         @relation("TargetLanguage")
+  vocabularyItems       VocabularyItem[]
+  phrases               Phrase[]
 
   @@map("languages")
 }
@@ -66,6 +68,7 @@ model User {
   dailyActivities          DailyLearningActivity[]
   xpTransactions           XpTransaction[]
   lessonProgress           LessonProgress[]
+  lessonQuestionAttempts   LessonQuestionAttempt[]
   createdAt                DateTime                @default(now()) @map("created_at")
   updatedAt                DateTime                @updatedAt @map("updated_at")
 
@@ -253,19 +256,22 @@ model CourseUnit {
 }
 
 model Lesson {
-  id                    String             @id @db.VarChar(32)
-  unitId                String             @map("unit_id") @db.VarChar(32)
-  slug                  String             @db.VarChar(191)
-  title                 String             @db.VarChar(191)
+  id                    String                  @id @db.VarChar(32)
+  unitId                String                  @map("unit_id") @db.VarChar(32)
+  slug                  String                  @db.VarChar(191)
+  title                 String                  @db.VarChar(191)
   position              Int
-  status                String             @default("draft") @db.VarChar(16)
-  activityType          String?            @map("activity_type") @db.VarChar(64)
-  createdAt             DateTime           @default(now()) @map("created_at")
-  updatedAt             DateTime           @updatedAt @map("updated_at")
-  unit                  CourseUnit         @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  status                String                  @default("draft") @db.VarChar(16)
+  activityType          String?                 @map("activity_type") @db.VarChar(64)
+  completionRule        Json?                   @map("completion_rule")
+  xpReward              Int                     @default(10) @map("xp_reward")
+  createdAt             DateTime                @default(now()) @map("created_at")
+  updatedAt             DateTime                @updatedAt @map("updated_at")
+  unit                  CourseUnit              @relation(fields: [unitId], references: [id], onDelete: Cascade)
   blocks                LessonBlock[]
-  currentForEnrollments CourseEnrollment[] @relation("CurrentLesson")
+  currentForEnrollments CourseEnrollment[]      @relation("CurrentLesson")
   progress              LessonProgress[]
+  attempts              LessonQuestionAttempt[]
 
   @@unique([unitId, slug])
   @@unique([unitId, position])
@@ -274,20 +280,102 @@ model Lesson {
 }
 
 model LessonBlock {
-  id            String   @id @db.VarChar(32)
-  lessonId      String   @map("lesson_id") @db.VarChar(32)
-  blockType     String   @map("block_type") @db.VarChar(64)
+  id            String                  @id @db.VarChar(32)
+  lessonId      String                  @map("lesson_id") @db.VarChar(32)
+  blockType     String                  @map("block_type") @db.VarChar(64)
   position      Int
-  schemaVersion Int      @default(1) @map("schema_version")
+  schemaVersion Int                     @default(1) @map("schema_version")
+  required      Boolean                 @default(true)
   content       Json
-  status        String   @default("draft") @db.VarChar(16)
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
-  lesson        Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  status        String                  @default("draft") @db.VarChar(16)
+  createdAt     DateTime                @default(now()) @map("created_at")
+  updatedAt     DateTime                @updatedAt @map("updated_at")
+  lesson        Lesson                  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  attempts      LessonQuestionAttempt[]
 
   @@unique([lessonId, position])
   @@index([lessonId, status])
   @@map("lesson_blocks")
+}
+
+model ArabicLetter {
+  id                       String   @id @db.VarChar(32)
+  stableKey                String   @unique @map("stable_key") @db.VarChar(64)
+  character                String   @db.VarChar(8)
+  arabicName               String   @map("arabic_name") @db.VarChar(64)
+  banglaPronunciation      String   @map("bangla_pronunciation") @db.VarChar(191)
+  englishTransliteration   String?  @map("english_transliteration") @db.VarChar(64)
+  banglaSoundExplanation   String   @map("bangla_sound_explanation") @db.Text
+  isolatedForm             String   @map("isolated_form") @db.VarChar(16)
+  initialForm              String?  @map("initial_form") @db.VarChar(16)
+  medialForm               String?  @map("medial_form") @db.VarChar(16)
+  finalForm                String?  @map("final_form") @db.VarChar(16)
+  makhrajRegion            String   @map("makhraj_region") @db.VarChar(64)
+  makhrajSubregion         String?  @map("makhraj_subregion") @db.VarChar(100)
+  makhrajExplanationBangla String   @map("makhraj_explanation_bn") @db.Text
+  pronunciationTipBangla   String   @map("pronunciation_tip_bn") @db.Text
+  position                 Int      @unique
+  createdAt                DateTime @default(now()) @map("created_at")
+  updatedAt                DateTime @updatedAt @map("updated_at")
+
+  @@map("arabic_letters")
+}
+
+model VocabularyItem {
+  id                  String   @id @db.VarChar(32)
+  stableKey           String   @unique @map("stable_key") @db.VarChar(100)
+  languageId          String   @map("language_id") @db.VarChar(32)
+  word                String   @db.VarChar(191)
+  wordWithDiacritics  String?  @map("word_with_diacritics") @db.VarChar(191)
+  banglaPronunciation String?  @map("bangla_pronunciation") @db.VarChar(191)
+  banglaMeaning       String   @map("bangla_meaning") @db.VarChar(500)
+  englishMeaning      String?  @map("english_meaning") @db.VarChar(500)
+  transliteration     String?  @db.VarChar(191)
+  partOfSpeech        String?  @map("part_of_speech") @db.VarChar(64)
+  root                String?  @db.VarChar(32)
+  difficulty          Int      @default(1)
+  exampleSentence     String?  @map("example_sentence") @db.Text
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+  language            Language @relation(fields: [languageId], references: [id])
+
+  @@index([languageId, difficulty])
+  @@map("vocabulary_items")
+}
+
+model Phrase {
+  id                  String   @id @db.VarChar(32)
+  stableKey           String   @unique @map("stable_key") @db.VarChar(100)
+  languageId          String   @map("language_id") @db.VarChar(32)
+  text                String   @db.VarChar(500)
+  textWithDiacritics  String?  @map("text_with_diacritics") @db.VarChar(500)
+  banglaPronunciation String?  @map("bangla_pronunciation") @db.VarChar(500)
+  banglaMeaning       String   @map("bangla_meaning") @db.VarChar(500)
+  englishMeaning      String?  @map("english_meaning") @db.VarChar(500)
+  usageNoteBangla     String?  @map("usage_note_bn") @db.Text
+  difficulty          Int      @default(1)
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+  language            Language @relation(fields: [languageId], references: [id])
+
+  @@index([languageId, difficulty])
+  @@map("phrases")
+}
+
+model LessonQuestionAttempt {
+  id               String      @id @db.VarChar(32)
+  userId           String      @map("user_id") @db.VarChar(32)
+  lessonId         String      @map("lesson_id") @db.VarChar(32)
+  blockId          String      @map("block_id") @db.VarChar(32)
+  selectedOptionId String      @map("selected_option_id") @db.VarChar(100)
+  correct          Boolean
+  attemptedAt      DateTime    @default(now()) @map("attempted_at")
+  user             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson           Lesson      @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  block            LessonBlock @relation(fields: [blockId], references: [id], onDelete: Cascade)
+
+  @@index([userId, lessonId, blockId, correct])
+  @@map("lesson_question_attempts")
 }
 
 model CourseEnrollment {

@@ -118,7 +118,7 @@ npm run build
 - [ ] Complete installation once.
 - [ ] Confirm the UI reports completion and no credential appears in the response or cPanel logs.
 - [ ] After installation, add the installed `DATABASE_URL` to the private cPanel Node.js environment so future CLI migrations do not require placing it in shell history. Restart the application after changing environment variables.
-- [ ] Confirm both migrations were applied:
+- [ ] Confirm all four migrations were applied:
 
 ```bash
 npx prisma migrate status
@@ -130,6 +130,7 @@ Expected migrations:
 20260828000100_installer_foundation
 20260828000200_phase1_core_domain
 20260828000300_phase2_learner_experience
+20260829000100_phase3_arabic_lesson_engine
 ```
 
 - [ ] In MySQL, verify `_prisma_migrations` shows both successful and no failed/rolled-back entry.
@@ -190,6 +191,12 @@ onboarding state=not_started
 - [ ] Confirm profile/settings edits affect only the signed-in student; browser-supplied role, status, user ID, XP, and progress fields have no effect.
 - [ ] Open the enrolled course overview and confirm unpublished levels, units, and lessons are not exposed; a non-enrolled course slug returns a safe not-found response.
 - [ ] Verify the Bangla/English interface switch persists and child mode changes presentation without changing authorization or TTS voice configuration.
+- [ ] Confirm the published course shows 18 lessons with exactly one first incomplete/current lesson and later lessons locked.
+- [ ] Open the first lesson, verify local Arabic RTL rendering and Bangla LTR UI, answer the required question incorrectly and then correctly, and confirm feedback is not color-only.
+- [ ] Complete the lesson and confirm one completion row, exactly 10 XP, one daily lesson-completion increment, the next lesson as current, and updated dashboard progress.
+- [ ] Refresh and resubmit completion; confirm XP and activity are not awarded again.
+- [ ] Attempt a locked lesson ID and draft content URL directly; confirm a safe not-found response.
+- [ ] Confirm audio and pronunciation controls are visibly disabled and make no network/provider request.
 
 ## 8. Verify SMTP password recovery
 

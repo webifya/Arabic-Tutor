@@ -19,9 +19,9 @@ The installer schema is extended by a backward-compatible migration with student
 
 Implemented the localized authenticated learner shell, deterministic onboarding, idempotent initial enrollment, database-backed dashboard, course overview over enrolled/published content, profile/settings management, timezone-aware daily activity/streak foundations, lesson progress, and an idempotent XP ledger. Empty states remain explicit because Phase 2 does not fabricate lessons or progress.
 
-## Phase 3 — Course content and lesson learning loop
+## Phase 3 — Course content and lesson learning loop (complete)
 
-Implement localized course content, lesson block rendering, Arabic text primitives, lesson navigation, generic exercises, server-side scoring/completion transactions, goals, review scheduling, and achievements. Reuse the Phase 2 activity, progress, and XP services; do not award progress from client claims.
+Implemented a published Arabic Foundation path with reusable validated lesson blocks, Arabic typography/content primitives, ten letter records, first harakat and greeting content, server-scored multiple choice, persisted attempts, deterministic lesson access, transactional completion, idempotent XP, learner-local activity, next-lesson advancement, and real dashboard/course progress. Advanced exercises, goals/review scheduling, and achievements remain later work.
 
 ## Phase 4 — Audio and pronunciation
 
