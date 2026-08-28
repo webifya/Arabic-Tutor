@@ -1,2 +1,6 @@
+import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth/session";
-export default async function OnboardingPage(){await requireRole(["student"]);return <main className="page-shell"><section className="foundation-card"><p className="eyebrow">শেখার প্রস্তুতি</p><h1>আপনার লক্ষ্য বেছে নেওয়ার জায়গা প্রস্তুত</h1><p className="description">আরবি স্তর, শেখার উদ্দেশ্য, দৈনিক ৫–৩০ মিনিট এবং standard/child mode সংরক্ষণের ভিত্তি তৈরি হয়েছে। পূর্ণ অনবোর্ডিং পরবর্তী ধাপে আসবে।</p></section></main>}
+import { getLearnerProfile } from "@/server/learner/service";
+import { getMessages } from "@/i18n";
+import { OnboardingWizard } from "@/components/learner/onboarding-wizard";
+export default async function OnboardingPage(){const user=await requireRole(["student"]);const profile=await getLearnerProfile(user.id);if(!profile)redirect("/login");if(profile.onboardingState==="completed")redirect("/learn");return <OnboardingWizard messages={getMessages(profile.interfaceLocale).learner.onboarding}/>}

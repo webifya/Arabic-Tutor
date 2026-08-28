@@ -4,7 +4,7 @@
 
 Lisan is an AI-assisted language-learning platform. Its first product is Arabic Foundation for Bangla-speaking learners, while its course, exercise, progress, localization, speech, and AI boundaries are designed for future language pairs.
 
-This repository contains the secure cPanel installer and Phase 1 identity/domain foundation: Auth.js login and registration, password recovery, role enforcement, typed settings, local storage, reusable course tables, and provider-neutral routing records. Full learning, content, AI tutor, speech, and administration experiences remain deferred.
+This repository contains the secure cPanel installer, the Phase 1 identity/domain foundation, and the Phase 2 learner experience. Students can register, complete localized onboarding, see a database-backed dashboard, inspect their enrolled course path, and manage profile/settings data. Lesson delivery, exercises, AI tutoring, speech, review sessions, and full administration remain deferred.
 
 ## Stack
 

@@ -15,13 +15,13 @@ No course data, learning product routes, AI tutoring calls, speech processing, o
 
 The installer schema is extended by a backward-compatible migration with student profiles, role/status/session controls, reset/verification/invitation records, course hierarchy and enrollment, provider feature routes/fallbacks, voice assignments, teaching styles, media metadata, and durable rate limits. Auth.js login/logout, student signup, password reset through provider-neutral SMTP email, server authorization helpers, typed settings, and safe local storage are implemented. Verification/invitation persistence is prepared; delivery workflows and full UI remain later work.
 
-## Phase 2 — Course and content engine
+## Phase 2 — Student onboarding and learning dashboard (complete)
 
-Implement generic course hierarchy, localized content, lesson block schemas/rendering, Arabic text primitives, editorial validation, seed languages, and the initial reviewed Arabic Foundation structure.
+Implemented the localized authenticated learner shell, deterministic onboarding, idempotent initial enrollment, database-backed dashboard, course overview over enrolled/published content, profile/settings management, timezone-aware daily activity/streak foundations, lesson progress, and an idempotent XP ledger. Empty states remain explicit because Phase 2 does not fabricate lessons or progress.
 
-## Phase 3 — Student learning loop
+## Phase 3 — Course content and lesson learning loop
 
-Implement onboarding, enrollment, dashboard, lesson navigation, generic exercises, server-side scoring, progress ledger, goals, streaks, achievements, and accessible mobile UX.
+Implement localized course content, lesson block rendering, Arabic text primitives, lesson navigation, generic exercises, server-side scoring/completion transactions, goals, review scheduling, and achievements. Reuse the Phase 2 activity, progress, and XP services; do not award progress from client claims.
 
 ## Phase 4 — Audio and pronunciation
 

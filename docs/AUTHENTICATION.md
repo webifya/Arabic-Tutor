@@ -27,3 +27,5 @@ SMTP is the initial email adapter. When it is absent or delivery fails, the publ
 - Unauthenticated private routes go to `/login`.
 - A student requesting `/admin` is redirected to `/learn`.
 - `/admin/login` remains a compatibility redirect to `/login`.
+- An authenticated student whose onboarding is incomplete is redirected from learner dashboard/profile/settings/course pages to `/learn/onboarding`.
+- Onboarding completion and all learner profile/settings actions repeat student authorization server-side; no user or role identifier is accepted from the browser.

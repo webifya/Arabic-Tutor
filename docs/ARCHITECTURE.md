@@ -2,7 +2,7 @@
 
 ## Scope and principles
 
-Phase 1 implements the data and identity boundaries established in Phase 0. Lisan begins with Bangla → Arabic Foundation, but language pairs, lesson blocks, authentication, storage, AI, and speech remain reusable.
+Phase 2 adds the first complete authenticated learner journey to the data and identity boundaries established in Phases 0–1. Lisan begins with Bangla → Arabic Foundation, but language pairs, learner preferences, progress records, lesson blocks, authentication, storage, AI, and speech remain reusable.
 
 The production runtime is a long-lived standard Node.js process under cPanel Passenger. Next.js uses App Router and standalone output; core behavior must not depend on Edge or Vercel services.
 
@@ -37,6 +37,14 @@ Later phases should enforce dependencies inward: routes call services; services 
 ## Multilingual model
 
 UI localization (`bn`, `en`) is separate from course content. Courses refer to source and target language records. Localizable content uses translation records or structured locale fields where justified. Arabic typography components apply local `lang="ar"` and `dir="rtl"`; the Bangla page remains LTR.
+
+The learner shell, onboarding, dashboard, course overview, profile, and settings select typed Bangla/English messages from the authenticated user's `interface_locale`. Student mode is presentation/pedagogy metadata, not an authorization role. Child mode may increase visual clarity now; teaching-style and voice resolution remain separate later capabilities.
+
+## Learner journey and progress boundaries
+
+Authenticated students who have not completed onboarding are redirected to `/learn/onboarding`. Completion validates a fixed questionnaire, stores a deterministic recommended starting-point key, and idempotently ensures enrollment in the initial course. A recommendation does not create progress or pretend that a lesson was completed.
+
+The dashboard reads enrollment, published lesson counts, lesson progress, daily activity, XP ledger, and learner-local dates from MySQL. Merely rendering or refreshing a page never creates activity, XP, a streak, or progress. Future lesson completion services must write those records transactionally and use stable source IDs so duplicate requests cannot award XP twice. The course overview requires an active enrollment and exposes only published levels, units, and lessons; draft content remains hidden even when the course container itself is still being prepared.
 
 ## Provider boundaries
 

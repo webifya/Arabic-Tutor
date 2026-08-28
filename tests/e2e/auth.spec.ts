@@ -20,3 +20,32 @@ test("student login, protected landing, and logout", async ({ page }) => {
   await page.getByRole("button", { name: "লগআউট" }).click();
   await expect(page).toHaveURL(/\/login/);
 });
+
+test("new student completes onboarding and reaches the course overview", async ({ page }) => {
+  test.skip(
+    !process.env.E2E_ONBOARDING_EMAIL || !process.env.E2E_ONBOARDING_PASSWORD,
+    "Requires a disposable student whose onboarding is not started",
+  );
+
+  await page.goto("/login");
+  await page.getByLabel("ইমেইল").fill(process.env.E2E_ONBOARDING_EMAIL!);
+  await page.getByLabel("পাসওয়ার্ড").fill(process.env.E2E_ONBOARDING_PASSWORD!);
+  await page.getByRole("button", { name: "লগইন" }).click();
+  await expect(page).toHaveURL(/\/learn\/onboarding/);
+
+  await page.getByRole("button", { name: "একদম নতুন" }).click();
+  await page.getByRole("button", { name: "পরের ধাপ" }).click();
+  await page.getByRole("button", { name: "সাধারণ শিক্ষা" }).click();
+  await page.getByRole("button", { name: "পরের ধাপ" }).click();
+  await page.getByRole("button", { name: "10 মিনিট" }).click();
+  await page.getByRole("button", { name: "পরের ধাপ" }).click();
+  await page.getByRole("button", { name: "স্ট্যান্ডার্ড" }).click();
+  await page.getByRole("button", { name: "শেখা শুরু করুন" }).click();
+
+  await expect(page).toHaveURL(/\/learn$/);
+  await expect(page.getByRole("heading", { name: /আসসালামু আলাইকুম/ })).toBeVisible();
+  await page.getByRole("link", { name: "কোর্স দেখুন" }).click();
+  await expect(page).toHaveURL(/\/learn\/course\/arabic-foundation-bn/);
+  await expect(page.getByText("বাংলা")).toBeVisible();
+  await expect(page.getByText("العربية")).toBeVisible();
+});

@@ -47,3 +47,9 @@ Normal database-backed routes remain unavailable until explicit completion. Afte
 ## Phase 1 storage posture
 
 The local driver accepts only declared media purposes and allowlisted MIME types, generates opaque keys, rejects absolute/traversal paths, writes atomically with private permissions, and distinguishes public/private namespaces. Production storage should use an absolute path outside the release directory. Raw microphone audio remains temporary and is not retained by any Phase 1 route.
+
+## Phase 2 learner posture
+
+Onboarding, profile, and settings mutations derive the learner ID and student role from the server session; they accept no browser-supplied user ID, role, status, XP, progress, or enrollment identity. Profile updates resolve enabled language codes server-side. Course reads require an active enrollment and filter nested content to published records.
+
+Dashboard reads are side-effect free. Activity is recorded only by explicit server workflows, and XP uses a database uniqueness key for duplicate protection. Learner-local date calculations use the stored IANA timezone while database timestamps remain UTC. Future lesson/exercise endpoints must preserve these boundaries and update enrollment, progress, daily activity, and XP in a reviewed transaction.

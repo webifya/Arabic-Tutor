@@ -12,7 +12,7 @@ export async function getPool(): Promise<Pool> {
   await cached?.pool.end();
   cached = {
     url: runtime.databaseUrl,
-    pool: createPool({ uri: runtime.databaseUrl, connectionLimit: 8, enableKeepAlive: true }),
+    pool: createPool({ uri: runtime.databaseUrl, connectionLimit: 8, enableKeepAlive: true, dateStrings: ["DATE"] }),
   };
   return cached.pool;
 }

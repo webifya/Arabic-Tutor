@@ -129,6 +129,7 @@ Expected migrations:
 ```text
 20260828000100_installer_foundation
 20260828000200_phase1_core_domain
+20260828000300_phase2_learner_experience
 ```
 
 - [ ] In MySQL, verify `_prisma_migrations` shows both successful and no failed/rolled-back entry.
@@ -183,6 +184,12 @@ onboarding state=not_started
 
 - [ ] Attempt to add `role`, `status`, or language IDs to browser requests; confirm the server ignores them.
 - [ ] Attempt duplicate-email signup and confirm a safe application message with no SQL details.
+- [ ] Complete all four onboarding steps and confirm the stored level, goal, daily minutes, mode, locale, completion time, and deterministic recommendation.
+- [ ] Repeat onboarding submission in a disposable test and confirm there is still exactly one enrollment for the initial course.
+- [ ] Confirm dashboard values are database-derived and that repeated refreshes do not create activity, XP, lesson progress, or streak records.
+- [ ] Confirm profile/settings edits affect only the signed-in student; browser-supplied role, status, user ID, XP, and progress fields have no effect.
+- [ ] Open the enrolled course overview and confirm unpublished levels, units, and lessons are not exposed; a non-enrolled course slug returns a safe not-found response.
+- [ ] Verify the Bangla/English interface switch persists and child mode changes presentation without changing authorization or TTS voice configuration.
 
 ## 8. Verify SMTP password recovery
 

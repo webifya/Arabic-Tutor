@@ -2,7 +2,16 @@
 
 ## Migration status
 
-The immutable first migration creates the installer foundation. The Phase 1 migration expands existing users in place and adds identity recovery, course catalog/enrollment, AI feature routing/fallback, voice assignment, teaching style, media metadata, and database rate-limit tables. It safely seeds `bn`, `ar`, `en`, plus draft course `arabic-foundation-bn`. Fresh installer runs and existing installations use the same ordered migration history.
+The immutable first migration creates the installer foundation. The Phase 1 migration expands existing users in place and adds identity recovery, course catalog/enrollment, AI feature routing/fallback, voice assignment, teaching style, media metadata, and database rate-limit tables. It safely seeds `bn`, `ar`, `en`, plus draft course `arabic-foundation-bn`. The additive Phase 2 migration adds learner onboarding preferences, daily activity, XP ledger, and lesson progress. Fresh installer runs and existing installations use the same ordered migration history.
+
+## Implemented Phase 2 learner records
+
+- `users.onboarding_completed_at`, `recommended_starting_point`, and `interface_locale` preserve completion, a replaceable recommendation key, and typed UI locale.
+- `daily_learning_activities` has one learner-local calendar row per user/date, retains the timezone used for that date, and stores additive minutes, completed lessons, and learned words. Reads never create these rows.
+- `xp_transactions` is an append-only ledger. The unique `(user_id, source_type, source_id, reason)` key makes a logical award idempotent; totals are derived rather than trusted from the browser.
+- `lesson_progress` has one row per user/lesson with explicit status and start/completion timestamps. Enrollment and lesson publication remain separate authorization/content checks.
+
+The dashboard derives cumulative XP and words, completed/total published lessons, and timezone-aware streaks from these records. Empty tables produce honest zeros and empty states. Onboarding enrollment uses the existing unique user/course constraint and `INSERT IGNORE`, making repeat submission safe.
 
 ## Implemented Phase 1 domains
 
