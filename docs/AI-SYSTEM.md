@@ -1,5 +1,7 @@
 # AI, Speech, and Voice System
 
+Phase 1 now persists provider/model feature routes, ordered fallbacks, optional TTS voice-profile references, voice assignment rules, and separate teaching styles. Runtime routing/adapters, usage accounting, connection checks, and the administration UI remain deliberately deferred.
+
 ## Status and goals
 
 This is a planning contract for later phases. Phase 0 contains TypeScript interfaces but makes no provider calls, stores no credentials, and exposes no AI administration UI.

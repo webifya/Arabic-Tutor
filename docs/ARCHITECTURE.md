@@ -2,7 +2,7 @@
 
 ## Scope and principles
 
-Phase 0 establishes boundaries, not product features. Lisan begins with Bangla → Arabic Foundation, but language pairs, lesson blocks, exercises, translations, progress, AI, and speech must remain reusable.
+Phase 1 implements the data and identity boundaries established in Phase 0. Lisan begins with Bangla → Arabic Foundation, but language pairs, lesson blocks, authentication, storage, AI, and speech remain reusable.
 
 The production runtime is a long-lived standard Node.js process under cPanel Passenger. Next.js uses App Router and standalone output; core behavior must not depend on Edge or Vercel services.
 
@@ -50,6 +50,12 @@ UI localization (`bn`, `en`) is separate from course content. Courses refer to s
 Application features request a capability by stable feature key (for example `tutor.answer`, `lesson.reference_audio`, or `pronunciation.evaluate`). A server-side router resolves the enabled primary provider/model and an ordered fallback chain. Business services consume normalized contracts and do not inspect vendor names.
 
 Provider adapters own vendor request/response translation. The router owns capability checks, health/circuit decisions, timeouts, and fallback eligibility. It must not retry unsafe/non-idempotent requests blindly. Usage events record provider, model, feature, latency, status, and provider-reported units without logging credentials or sensitive payloads. See `docs/AI-SYSTEM.md`.
+
+## Identity, settings, and storage
+
+Auth.js issues eight-hour encrypted JWT sessions in HTTP-only, same-site cookies. Every session read refreshes user role, status, and session version from MySQL, so disabling an account, changing its role, or resetting its password takes effect server-side. Route components call reusable authorization helpers; browser role claims are ignored. Password reset tokens are random, SHA-256 hashed at rest, single-use, and expire after 30 minutes. See `docs/AUTHENTICATION.md`.
+
+Normal application settings are cached for 30 seconds through a typed server service; secrets remain in environment/private runtime configuration. Durable assets use `StorageProvider`; the local driver creates opaque filenames, validates purpose/MIME pairs, separates public/private keys, and confines all paths to the configured root.
 
 Provider connections and credentials are separate records. An admin may create, test, enable, disable, and select models later, but secret values are accepted and encrypted only on the server. Browser responses contain connection metadata and a `credential_present` indicator, never ciphertext or plaintext.
 

@@ -25,6 +25,10 @@ model Language {
   enabled   Boolean  @default(true)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+  nativeLanguageUsers User[] @relation("NativeLanguage")
+  learningLanguageUsers User[] @relation("LearningLanguage")
+  sourceCourses Course[] @relation("SourceLanguage")
+  targetCourses Course[] @relation("TargetLanguage")
 
   @@map("languages")
 }
@@ -35,11 +39,88 @@ model User {
   fullName     String   @map("full_name") @db.VarChar(191)
   passwordHash String   @map("password_hash") @db.VarChar(255)
   role         String   @default("student") @db.VarChar(32)
+  displayName  String?  @map("display_name") @db.VarChar(100)
+  avatarPath   String?  @map("avatar_path") @db.VarChar(500)
+  status       String   @default("active") @db.VarChar(32)
   emailVerifiedAt DateTime? @map("email_verified_at")
+  nativeLanguageId String? @map("native_language_id") @db.VarChar(32)
+  learningLanguageId String? @map("learning_language_id") @db.VarChar(32)
+  country      String?  @db.VarChar(2)
+  timezone     String   @default("Asia/Dhaka") @db.VarChar(100)
+  dateOfBirth  DateTime? @map("date_of_birth") @db.Date
+  arabicLevel  String?  @map("arabic_level") @db.VarChar(32)
+  learningGoal String?  @map("learning_goal") @db.VarChar(32)
+  dailyGoalMinutes Int @default(10) @map("daily_goal_minutes")
+  studentMode  String   @default("standard") @map("student_mode") @db.VarChar(16)
+  onboardingState String @default("not_started") @map("onboarding_state") @db.VarChar(32)
+  sessionVersion Int @default(1) @map("session_version")
+  nativeLanguage Language? @relation("NativeLanguage", fields: [nativeLanguageId], references: [id], onDelete: SetNull)
+  learningLanguage Language? @relation("LearningLanguage", fields: [learningLanguageId], references: [id], onDelete: SetNull)
+  passwordResetTokens PasswordResetToken[]
+  accounts AuthAccount[]
+  enrollments CourseEnrollment[]
+  mediaAssets MediaAsset[]
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
   @@map("users")
+  @@index([role, status])
+  @@index([nativeLanguageId])
+  @@index([learningLanguageId])
+}
+
+model AuthAccount {
+  id                String  @id @db.VarChar(32)
+  userId            String  @map("user_id") @db.VarChar(32)
+  type              String  @db.VarChar(32)
+  provider          String  @db.VarChar(64)
+  providerAccountId String  @map("provider_account_id") @db.VarChar(191)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("auth_accounts")
+}
+
+model PasswordResetToken {
+  id        String   @id @db.VarChar(32)
+  userId    String   @map("user_id") @db.VarChar(32)
+  tokenHash String   @unique @map("token_hash") @db.Char(64)
+  expiresAt DateTime @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@map("password_reset_tokens")
+}
+
+model VerificationToken {
+  id        String   @id @db.VarChar(32)
+  identifier String  @db.VarChar(191)
+  tokenHash String   @unique @map("token_hash") @db.Char(64)
+  purpose   String   @db.VarChar(32)
+  expiresAt DateTime @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([identifier, purpose, expiresAt])
+  @@map("verification_tokens")
+}
+
+model UserInvitation {
+  id         String   @id @db.VarChar(32)
+  email      String   @db.VarChar(191)
+  role       String   @db.VarChar(32)
+  tokenHash  String   @unique @map("token_hash") @db.Char(64)
+  expiresAt  DateTime @map("expires_at")
+  acceptedAt DateTime? @map("accepted_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([email, expiresAt])
+  @@map("user_invitations")
 }
 
 model AiProvider {
@@ -53,6 +134,8 @@ model AiProvider {
   credentials AiProviderCredential[]
   models      AiProviderModel[]
   voices      VoiceProfile[]
+  featureRoutes AiFeatureRoute[]
+  fallbackRoutes AiFeatureRouteFallback[]
 
   @@map("ai_providers")
 }
@@ -81,6 +164,8 @@ model AiProviderModel {
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
   provider      AiProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  featureRoutes AiFeatureRoute[]
+  fallbackRoutes AiFeatureRouteFallback[]
 
   @@unique([providerId, providerModelId])
   @@map("ai_provider_models")
@@ -100,7 +185,217 @@ model VoiceProfile {
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
   provider        AiProvider? @relation(fields: [providerId], references: [id], onDelete: SetNull)
+  assignments     VoiceProfileAssignment[]
+  featureRoutes   AiFeatureRoute[]
 
   @@index([providerId])
   @@map("voice_profiles")
+}
+
+model Course {
+  id               String   @id @db.VarChar(32)
+  slug             String   @unique @db.VarChar(191)
+  name             String   @db.VarChar(191)
+  description      String?  @db.Text
+  sourceLanguageId String   @map("source_language_id") @db.VarChar(32)
+  targetLanguageId String   @map("target_language_id") @db.VarChar(32)
+  status           String   @default("draft") @db.VarChar(16)
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+  sourceLanguage   Language @relation("SourceLanguage", fields: [sourceLanguageId], references: [id])
+  targetLanguage   Language @relation("TargetLanguage", fields: [targetLanguageId], references: [id])
+  levels           CourseLevel[]
+  enrollments      CourseEnrollment[]
+  voiceAssignments VoiceProfileAssignment[]
+
+  @@index([sourceLanguageId, targetLanguageId, status])
+  @@map("courses")
+}
+
+model CourseLevel {
+  id        String   @id @db.VarChar(32)
+  courseId  String   @map("course_id") @db.VarChar(32)
+  slug      String   @db.VarChar(191)
+  name      String   @db.VarChar(191)
+  position  Int
+  status    String   @default("draft") @db.VarChar(16)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  units     CourseUnit[]
+
+  @@unique([courseId, slug])
+  @@unique([courseId, position])
+  @@map("course_levels")
+}
+
+model CourseUnit {
+  id        String   @id @db.VarChar(32)
+  levelId   String   @map("level_id") @db.VarChar(32)
+  slug      String   @db.VarChar(191)
+  name      String   @db.VarChar(191)
+  position  Int
+  status    String   @default("draft") @db.VarChar(16)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  level     CourseLevel @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  lessons   Lesson[]
+
+  @@unique([levelId, slug])
+  @@unique([levelId, position])
+  @@map("course_units")
+}
+
+model Lesson {
+  id        String   @id @db.VarChar(32)
+  unitId    String   @map("unit_id") @db.VarChar(32)
+  slug      String   @db.VarChar(191)
+  title     String   @db.VarChar(191)
+  position  Int
+  status    String   @default("draft") @db.VarChar(16)
+  activityType String? @map("activity_type") @db.VarChar(64)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  unit      CourseUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  blocks    LessonBlock[]
+  currentForEnrollments CourseEnrollment[] @relation("CurrentLesson")
+
+  @@unique([unitId, slug])
+  @@unique([unitId, position])
+  @@index([status])
+  @@map("lessons")
+}
+
+model LessonBlock {
+  id            String   @id @db.VarChar(32)
+  lessonId      String   @map("lesson_id") @db.VarChar(32)
+  blockType     String   @map("block_type") @db.VarChar(64)
+  position      Int
+  schemaVersion Int      @default(1) @map("schema_version")
+  content       Json
+  status        String   @default("draft") @db.VarChar(16)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  lesson        Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([lessonId, position])
+  @@index([lessonId, status])
+  @@map("lesson_blocks")
+}
+
+model CourseEnrollment {
+  id              String   @id @db.VarChar(32)
+  userId          String   @map("user_id") @db.VarChar(32)
+  courseId        String   @map("course_id") @db.VarChar(32)
+  currentLessonId String?  @map("current_lesson_id") @db.VarChar(32)
+  status          String   @default("active") @db.VarChar(16)
+  startedAt       DateTime @default(now()) @map("started_at")
+  completedAt     DateTime? @map("completed_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course          Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  currentLesson   Lesson?  @relation("CurrentLesson", fields: [currentLessonId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, courseId])
+  @@index([courseId, status])
+  @@index([currentLessonId])
+  @@map("course_enrollments")
+}
+
+model AiFeatureRoute {
+  id           String   @id @db.VarChar(32)
+  featureKey   String   @unique @map("feature_key") @db.VarChar(100)
+  capability   String   @db.VarChar(64)
+  providerId   String?  @map("provider_id") @db.VarChar(32)
+  modelId      String?  @map("model_id") @db.VarChar(32)
+  voiceProfileId String? @map("voice_profile_id") @db.VarChar(32)
+  enabled      Boolean  @default(true)
+  timeoutMs    Int      @default(30000) @map("timeout_ms")
+  policy       Json?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  provider     AiProvider? @relation(fields: [providerId], references: [id], onDelete: SetNull)
+  model        AiProviderModel? @relation(fields: [modelId], references: [id], onDelete: SetNull)
+  voiceProfile VoiceProfile? @relation(fields: [voiceProfileId], references: [id], onDelete: SetNull)
+  fallbacks    AiFeatureRouteFallback[]
+
+  @@index([providerId])
+  @@index([modelId])
+  @@map("ai_feature_routes")
+}
+
+model AiFeatureRouteFallback {
+  id         String   @id @db.VarChar(32)
+  routeId    String   @map("route_id") @db.VarChar(32)
+  providerId String   @map("provider_id") @db.VarChar(32)
+  modelId    String?  @map("model_id") @db.VarChar(32)
+  position   Int
+  enabled    Boolean  @default(true)
+  route      AiFeatureRoute @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  provider   AiProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  model      AiProviderModel? @relation(fields: [modelId], references: [id], onDelete: SetNull)
+
+  @@unique([routeId, position])
+  @@unique([routeId, providerId, modelId])
+  @@index([providerId])
+  @@index([modelId])
+  @@map("ai_feature_route_fallbacks")
+}
+
+model VoiceProfileAssignment {
+  id             String   @id @db.VarChar(32)
+  voiceProfileId String   @map("voice_profile_id") @db.VarChar(32)
+  studentMode    String?  @map("student_mode") @db.VarChar(16)
+  courseId       String?  @map("course_id") @db.VarChar(32)
+  activityType   String?  @map("activity_type") @db.VarChar(64)
+  ttsPurpose     String?  @map("tts_purpose") @db.VarChar(64)
+  priority       Int      @default(0)
+  enabled        Boolean  @default(true)
+  voiceProfile   VoiceProfile @relation(fields: [voiceProfileId], references: [id], onDelete: Cascade)
+  course         Course? @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([studentMode, courseId, activityType, ttsPurpose, priority])
+  @@map("voice_profile_assignments")
+}
+
+model TeachingStyle {
+  id               String   @id @db.VarChar(32)
+  name             String   @db.VarChar(191)
+  studentMode      String?  @map("student_mode") @db.VarChar(16)
+  explanationLevel String?  @map("explanation_level") @db.VarChar(32)
+  instructions     String   @db.Text
+  encouragementStyle String? @map("encouragement_style") @db.VarChar(64)
+  enabled          Boolean  @default(true)
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@index([studentMode, enabled])
+  @@map("teaching_styles")
+}
+
+model MediaAsset {
+  id           String   @id @db.VarChar(32)
+  ownerUserId  String?  @map("owner_user_id") @db.VarChar(32)
+  storageKey   String   @unique @map("storage_key") @db.VarChar(500)
+  visibility   String   @db.VarChar(16)
+  purpose      String   @db.VarChar(64)
+  mimeType     String   @map("mime_type") @db.VarChar(191)
+  sizeBytes    BigInt   @map("size_bytes")
+  checksum     String?  @db.Char(64)
+  createdAt    DateTime @default(now()) @map("created_at")
+  owner        User?    @relation(fields: [ownerUserId], references: [id], onDelete: SetNull)
+
+  @@index([ownerUserId, purpose])
+  @@map("media_assets")
+}
+
+model RateLimitBucket {
+  key         String   @id @db.VarChar(191)
+  count       Int      @default(0)
+  windowStart DateTime @map("window_start")
+  expiresAt   DateTime @map("expires_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([expiresAt])
+  @@map("rate_limit_buckets")
 }

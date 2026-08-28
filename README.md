@@ -4,15 +4,15 @@
 
 Lisan is an AI-assisted language-learning platform. Its first product is Arabic Foundation for Bangla-speaking learners, while its course, exercise, progress, localization, speech, and AI boundaries are designed for future language pairs.
 
-This repository contains the application foundation plus a narrow secure first-run cPanel installer. Course content, learning features, AI tutoring, speech processing, and full administration remain intentionally deferred.
+This repository contains the secure cPanel installer and Phase 1 identity/domain foundation: Auth.js login and registration, password recovery, role enforcement, typed settings, local storage, reusable course tables, and provider-neutral routing records. Full learning, content, AI tutor, speech, and administration experiences remain deferred.
 
 ## Stack
 
 - Next.js App Router, React, strict TypeScript, Tailwind CSS
 - Standard Node.js runtime with Next.js standalone output
-- MySQL/MariaDB through Prisma (schema begins in a later phase)
-- Auth.js/NextAuth.js (integration begins in a later phase)
-- cPanel/local storage behind a future provider interface
+- MySQL/MariaDB through reviewed Prisma migrations
+- Auth.js/NextAuth.js credentials sessions with server-side account checks
+- cPanel/local filesystem behind a typed storage provider
 - Provider-neutral AI and speech contracts with server-only OpenAI, Gemini, Claude, custom-compatible, and future adapters
 - Vitest and Playwright
 
@@ -49,6 +49,7 @@ Playwright browser installation may be required once: `npx playwright install ch
 - [Implementation plan](docs/IMPLEMENTATION-PLAN.md)
 - [cPanel deployment](docs/DEPLOY-CPANEL.md)
 - [Security](docs/SECURITY.md)
+- [Authentication](docs/AUTHENTICATION.md)
 - [Contributor/agent guidance](AGENTS.md)
 
 ## Scope guard

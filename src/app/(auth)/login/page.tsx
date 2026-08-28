@@ -1,0 +1,4 @@
+import Link from "next/link";
+import { LoginForm } from "../auth-form";
+export default async function LoginPage({searchParams}:{searchParams:Promise<{next?:string}>}){const requested=(await searchParams).next;const destination=requested==="/admin"?"/admin":"/learn";return <AuthPage title="আবার স্বাগতম" intro="আপনার শেখা যেখানে থেমেছিল সেখান থেকেই শুরু করুন।"><LoginForm destination={destination}/><div className="auth-links"><Link href="/forgot-password">পাসওয়ার্ড ভুলে গেছেন?</Link><Link href="/signup">নতুন অ্যাকাউন্ট</Link></div></AuthPage>}
+export function AuthPage({title,intro,children}:{title:string;intro:string;children:React.ReactNode}){return <main className="auth-shell"><section className="auth-card"><div className="auth-brand" lang="ar" dir="rtl">لسان</div><p className="eyebrow">আরবি শিখুন সহজভাবে</p><h1>{title}</h1><p className="description">{intro}</p>{children}</section></main>}

@@ -13,7 +13,9 @@ Database-managed provider credentials must be encrypted with authenticated encry
 
 ## Authentication and authorization
 
-Auth.js integration will be implemented in Phase 1. Require verified identity for private routes, authorize resources and roles on every server action/handler, use secure HTTP-only cookies, protect state-changing requests, and invalidate/reset sessions safely. Never rely on hidden UI or client claims for authorization.
+Auth.js credentials authentication uses encrypted eight-hour JWT sessions in HTTP-only, `SameSite=Lax`, production-secure cookies. Each server session refreshes role, account status, and `session_version` from MySQL. Password changes increment the version and invalidate earlier sessions. `/admin/**`, `/learn/**`, `/profile/**`, and `/settings/**` enforce authorization in server components; browser role claims and hidden UI are never authorization.
+
+Login, signup, and reset attempts use database-backed rate-limit buckets. Reset tokens contain 256 random bits, are stored only as SHA-256 hashes, expire after 30 minutes, and are consumed transactionally once. Forgot-password responses do not disclose account existence. SMTP credentials remain server-only and delivery failure is not represented as successful confirmed delivery.
 
 ## Data and children
 
@@ -41,3 +43,7 @@ Collect only necessary profile data; date of birth is optional unless a reviewed
 The first-run installer is a narrow unauthenticated bootstrap surface that closes permanently after installation. It uses same-origin Server Actions, Zod validation, bounded tests, file-backed rate limits, an exclusive lock, parameterized SQL, fixed migration execution, strong password hashing, and encrypted provider credentials. See `docs/INSTALLER.md`.
 
 Normal database-backed routes remain unavailable until explicit completion. After completion, `/install` redirects and every installer mutation rechecks state. There is no browser-accessible reset, secret reveal, arbitrary SQL, command execution, filesystem path, Git pull, or update endpoint.
+
+## Phase 1 storage posture
+
+The local driver accepts only declared media purposes and allowlisted MIME types, generates opaque keys, rejects absolute/traversal paths, writes atomically with private permissions, and distinguishes public/private namespaces. Production storage should use an absolute path outside the release directory. Raw microphone audio remains temporary and is not retained by any Phase 1 route.

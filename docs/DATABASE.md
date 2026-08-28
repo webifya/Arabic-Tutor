@@ -1,15 +1,15 @@
 # Database Architecture
 
-## Installer foundation status
+## Migration status
 
-The first reviewed Prisma migration creates only the installation foundation: application settings, languages, super-admin-compatible users, initial AI provider/credential/model records, and voice profiles. Course, progress, lesson, exercise, and later Auth.js account/session schemas remain deferred. Production targets MySQL/MariaDB through Prisma; Supabase/PostgreSQL is not part of the architecture.
+The immutable first migration creates the installer foundation. The Phase 1 migration expands existing users in place and adds identity recovery, course catalog/enrollment, AI feature routing/fallback, voice assignment, teaching style, media metadata, and database rate-limit tables. It safely seeds `bn`, `ar`, `en`, plus draft course `arabic-foundation-bn`. Fresh installer runs and existing installations use the same ordered migration history.
 
-## Planned domains
+## Implemented Phase 1 domains
 
-- Identity: users, Auth.js accounts/sessions/verification tokens, profiles, roles.
-- Catalog: languages, courses, levels, units, lessons, lesson blocks.
+- Identity: users, future Auth.js accounts, password-reset/verification/invitation tokens, profiles, roles, status, session version.
+- Catalog: languages, courses, levels, units, lessons, versioned lesson blocks.
 - Learning content: vocabulary, phrases, translations, exercises, Arabic-letter and articulation metadata.
-- Progress: enrollments, lesson progress, exercise attempts, streak/XP ledger, pronunciation results.
+- Progress: course enrollment/current lesson/start/completion only; advanced progress remains deferred.
 - Review: vocabulary review state and review events.
 - Media: audio assets, content hashes, provider and storage metadata.
 - AI operations: provider connections, encrypted credentials, models/capabilities, feature routes, fallbacks, usage events, and connection checks.
@@ -20,9 +20,9 @@ The first reviewed Prisma migration creates only the installation foundation: ap
 
 Each course has `source_language_id` and `target_language_id`. The hierarchy is Course → Level → Unit → Lesson → ordered Lesson Blocks → Exercises. Translation tables refer to language records instead of columns named for only Bangla or Arabic. Arabic-specific metadata may extend generic content records without making the engine Arabic-only.
 
-## Planned AI provider records
+## AI provider records
 
-Phase 1 should prepare the following relational design before creating migrations:
+Phase 1 persists providers, encrypted credentials, models, feature routes and ordered fallbacks. Capability detail remains in validated model JSON until later admin/adapter work requires normalized capability rows. Connection checks and usage events remain planned for the AI administration phase because Phase 1 performs no runtime AI calls.
 
 - `ai_providers`: adapter key/type (`openai`, `gemini`, `anthropic`, `openai_compatible`, or future), display name, optional validated base URL, enabled state, timestamps.
 - `ai_provider_credentials`: provider ID, encrypted envelope, encryption key version, safe label, credential type, created/rotated timestamps, and creator. Never store plaintext, a reversible key beside ciphertext, or a browser-readable secret fragment.
@@ -39,13 +39,19 @@ Credentials use authenticated encryption such as AES-256-GCM with a versioned en
 
 Custom/OpenAI-compatible base URLs require server-side URL validation and an explicit trust policy to prevent SSRF. Default to HTTPS and reject loopback, link-local, cloud metadata, and private-network targets unless an operator deliberately allowlists a trusted internal endpoint.
 
-## Planned voice and teaching records
+## Voice and teaching records
 
 - `voice_profiles`: name, provider ID, provider voice ID, language ID, speaking rate, style/instructions, purpose, enabled state, validated provider metadata, timestamps.
 - `voice_profile_assignments`: voice profile ID plus optional student mode, course ID, activity type, TTS purpose, priority, and enabled state.
 - `teaching_styles`: pedagogical/personality instructions, explanation level, encouragement style, optional student mode/scope, and enabled state.
 
 Assignment resolution must be deterministic and documented. More specific matching rules win, then explicit priority, then stable ID as a final tie-breaker. Referential checks must prevent assigning a disabled/incompatible voice profile. Teaching styles never contain provider voice settings.
+
+## Identity constraints
+
+Emails are unique and normalized by application services. Roles are validated against `student`, `parent`, `teacher`, `content_editor`, `admin`, and `super_admin`; complete authorization is provided now for student/admin/super-admin. Account `status` and `session_version` are rechecked from MySQL for every Auth.js session. Optional native/learning language foreign keys keep learner defaults generic. Date of birth is nullable; `student_mode` is independent of age.
+
+Reset/verification/invitation secrets are stored only as hashes and include expiry/consumption timestamps. Auth.js uses JWT sessions, so there is intentionally no database session-token table in Phase 1.
 
 ## Conventions
 

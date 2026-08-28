@@ -1,6 +1,6 @@
 # Implementation Plan
 
-## Phase 0 — Foundation (current)
+## Phase 0 — Foundation (complete)
 
 - Repository, Next.js App Router, strict TypeScript, Tailwind CSS.
 - Central branding, typed Bangla/English localization scaffold, Arabic font/RTL proof.
@@ -11,9 +11,9 @@
 
 No course data, learning product routes, AI tutoring calls, speech processing, or full admin functionality belongs in the foundation. The installer is the narrow exception needed to make cPanel deployment operational.
 
-## Phase 1 — Data and identity foundation
+## Phase 1 — Data and identity foundation (complete)
 
-Confirm production MariaDB/MySQL capabilities; extend the installer foundation with user profiles, complete Auth.js account/session requirements, roles, audit, and foundational course tables. Add provider model/capability, feature route/fallback, usage/check, voice assignment, and teaching-style schemas. Implement registration, email verification/reset, authorization primitives, storage provider interface, deployment-safe Prisma repositories, and credential rotation. Do not build the full provider admin UI or learning AI calls in this phase.
+The installer schema is extended by a backward-compatible migration with student profiles, role/status/session controls, reset/verification/invitation records, course hierarchy and enrollment, provider feature routes/fallbacks, voice assignments, teaching styles, media metadata, and durable rate limits. Auth.js login/logout, student signup, password reset through provider-neutral SMTP email, server authorization helpers, typed settings, and safe local storage are implemented. Verification/invitation persistence is prepared; delivery workflows and full UI remain later work.
 
 ## Phase 2 — Course and content engine
 

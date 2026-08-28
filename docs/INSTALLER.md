@@ -48,7 +48,7 @@ Therefore `DATABASE_URL`, `AUTH_SECRET`, and `APP_ENCRYPTION_KEY` supplied throu
 4. **Administrator:** validates a 12+ character mixed password and immediately derives a salted scrypt hash. Plaintext is neither persisted nor returned.
 5. **AI:** optional. Tests a bounded provider models endpoint and immediately AES-256-GCM encrypts the credential. OpenAI, Gemini, Claude, and HTTPS OpenAI-compatible endpoints are supported. Custom endpoints reject local/private/metadata targets and redirects.
 6. **Voice:** optional presets are available only for installer-supported TTS providers. The selected preset becomes the default profile record but remains disabled until a real provider voice ID is validated in the later Admin phase; the installer never guesses a voice ID.
-7. **Install:** shows a redacted summary, acquires an exclusive lock, retests the database, executes the fixed `prisma migrate deploy` operation, seeds base records in a transaction, creates the super-admin, and records completion in both MySQL and runtime state.
+7. **Install:** shows a redacted summary, acquires an exclusive lock, retests the database, executes every reviewed `prisma migrate deploy` migration (including Phase 1), seeds base records in a transaction, creates the super-admin in the current compatible scrypt format, and records completion in both MySQL and runtime state.
 8. **Complete:** links to the authenticated admin landing page and student site.
 
 ## Installation states
@@ -56,6 +56,8 @@ Therefore `DATABASE_URL`, `AUTH_SECRET`, and `APP_ENCRYPTION_KEY` supplied throu
 `not_started`, `configuring`, `migrating`, `seeding`, `creating_admin`, `completed`, and `failed` are explicit runtime states. MySQL also stores `installation.completed`. A non-complete runtime state can self-heal to complete when the database record proves that the final transaction committed.
 
 After completion, direct `/install` access redirects to admin login. Reinstallation is not exposed. A reset requires an explicit operator recovery procedure involving backups and both state stores; deleting only one marker is intentionally insufficient.
+
+Existing installations upgrade by backing up MySQL/storage, deploying the new release, and running `prisma migrate deploy`; the first migration is unchanged. Updates never reopen the installer. Fresh installs run both foundation and Phase 1 migrations before the installer transaction creates the super-admin.
 
 ## Security controls
 

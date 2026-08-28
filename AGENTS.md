@@ -28,7 +28,7 @@ Use MySQL/MariaDB through Prisma. Never edit a deployed database manually. Schem
 
 ## Security and deployment
 
-Never commit secrets, `.env` files, `.runtime-config.json`, production data, or learner audio. Installer actions must recheck completion state, validate input, preserve fixed migration commands, and never expose reset/secret/SQL/shell/path controls. Authorize every post-install server mutation, score progress server-side, rate-limit expensive/sensitive endpoints, and isolate user-owned media. Build with `output: "standalone"`; support cPanel Passenger and normal Node.js without Vercel-only services. See `docs/SECURITY.md`, `docs/INSTALLER.md`, `docs/AI-SYSTEM.md`, and `docs/DEPLOY-CPANEL.md`.
+Never commit secrets, `.env` files, `.runtime-config.json`, production data, or learner audio. Installer actions must recheck completion state, validate input, preserve fixed migration commands, and never expose reset/secret/SQL/shell/path controls. Authorize every post-install server mutation with helpers from `src/lib/auth/session.ts`, score progress server-side, rate-limit expensive/sensitive endpoints, and isolate user-owned media. Build with `output: "standalone"`; support cPanel Passenger and normal Node.js without Vercel-only services. See `docs/SECURITY.md`, `docs/AUTHENTICATION.md`, `docs/INSTALLER.md`, `docs/AI-SYSTEM.md`, and `docs/DEPLOY-CPANEL.md`.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

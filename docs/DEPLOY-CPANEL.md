@@ -11,6 +11,7 @@ Use Node.js 22.12+ LTS where cPanel offers it. Node.js 20.19+ and Node.js 24 are
 - Application startup file: `server.cjs`
 - Production mode and all variables listed in `.env.example`
 - A private, writable storage directory and a MySQL/MariaDB database/user
+- SMTP details and a verified sender address when password-reset email is required
 
 Never place secrets in the Git repository or a public web root. cPanel account names and paths vary; replace examples with the host's real values.
 
@@ -61,7 +62,7 @@ The initial storage backend is a private local/cPanel directory. It must be writ
 1. Back up the database and durable storage.
 2. Record the currently deployed commit.
 3. Pull the reviewed release (or deploy its archive).
-4. Run `npm ci`, reviewed Prisma migrations when a future phase adds them, and `npm run build`.
+4. Run `npm ci`, `DATABASE_URL='…' npx prisma migrate deploy`, and `npm run build`.
 5. Restart Passenger and run health/smoke checks.
 
 Application updates do not reopen or rerun the first-run installer. Future updates must use the separate controlled migration process; do not delete installation state to apply an update.
@@ -80,6 +81,7 @@ Retain the previous release directory or release archive and the pre-deploy data
 - **Wrong port or 502:** let Passenger supply `PORT` when it does; do not expose an unrelated fixed port. Confirm the process binds to `0.0.0.0`.
 - **Database connection fails:** check encoded credentials, database/user grants, allowed host, server version, connection limits, and whether cPanel requires `localhost` rather than `127.0.0.1`.
 - **Permission denied on media:** make the configured storage directory writable by the app user without making it world-writable.
+- **Reset email unavailable:** configure the `SMTP_*` variables, verify the sender/domain, restart Passenger, and test delivery without logging tokens.
 - **Out of memory/build timeout:** build in CI or locally with the exact production Node version and upload the prepared standalone artifact.
 - **Changes do not appear:** restart the Node application/Passenger and verify the deployed commit and application root.
 
