@@ -13,7 +13,7 @@ This repository currently contains **Phase 0 only**: the application and reposit
 - MySQL/MariaDB through Prisma (schema begins in a later phase)
 - Auth.js/NextAuth.js (integration begins in a later phase)
 - cPanel/local storage behind a future provider interface
-- OpenAI through server-only provider modules
+- Provider-neutral AI and speech contracts with server-only OpenAI, Gemini, Claude, custom-compatible, and future adapters
 - Vitest and Playwright
 
 ## Local setup
@@ -43,6 +43,7 @@ Playwright browser installation may be required once: `npx playwright install ch
 ## Documentation
 
 - [Architecture](docs/ARCHITECTURE.md)
+- [AI, speech, and voice system](docs/AI-SYSTEM.md)
 - [Database design](docs/DATABASE.md)
 - [Implementation plan](docs/IMPLEMENTATION-PLAN.md)
 - [cPanel deployment](docs/DEPLOY-CPANEL.md)
@@ -51,4 +52,4 @@ Playwright browser installation may be required once: `npx playwright install ch
 
 ## Scope guard
 
-The final infrastructure decision overrides older Supabase references: use MySQL/MariaDB, Prisma, Auth.js, cPanel/local storage abstraction, cPanel Node.js/Passenger, and server-side OpenAI. Do not add Supabase dependencies or assumptions.
+The final infrastructure decision overrides older Supabase references: use MySQL/MariaDB, Prisma, Auth.js, cPanel/local storage abstraction, cPanel Node.js/Passenger, and provider-neutral server-side AI/speech integrations. Do not add Supabase dependencies or assumptions.

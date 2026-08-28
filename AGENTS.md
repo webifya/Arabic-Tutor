@@ -11,7 +11,8 @@ Lisan is a multilingual learning platform whose first course is Bangla → Arabi
 - Model languages and translations generically. A course references source and target languages; Arabic content is not UI localization.
 - Keep UI strings in typed locale dictionaries (`bn`, `en`). Use `dir="rtl"` only on Arabic content.
 - Keep branding in `src/config/app.ts` and environment settings, not scattered through components.
-- OpenAI calls are server-only and centralized under `src/lib/ai`; AI never directly awards progress.
+- AI/speech integrations are server-only, capability-based adapters under `src/lib/ai`; application features never select OpenAI, Gemini, Claude, or another vendor directly. AI never directly awards progress.
+- Provider credentials stored in MySQL require authenticated encryption with the server-only `APP_ENCRYPTION_KEY`; never reveal or log plaintext/ciphertext. Keep teaching style separate from TTS voice profiles.
 - Raw microphone audio is temporary by default and must be discarded after processing.
 
 ## Coding and quality
@@ -27,7 +28,7 @@ Use MySQL/MariaDB through Prisma. Never edit a deployed database manually. Schem
 
 ## Security and deployment
 
-Never commit secrets, `.env` files, production data, or learner audio. Authorize every server mutation, score progress server-side, rate-limit expensive/sensitive endpoints, and isolate user-owned media. Build with `output: "standalone"`; support cPanel Passenger and normal Node.js without Vercel-only services. See `docs/SECURITY.md` and `docs/DEPLOY-CPANEL.md`.
+Never commit secrets, `.env` files, production data, or learner audio. Authorize every server mutation, score progress server-side, rate-limit expensive/sensitive endpoints, and isolate user-owned media. Build with `output: "standalone"`; support cPanel Passenger and normal Node.js without Vercel-only services. See `docs/SECURITY.md`, `docs/AI-SYSTEM.md`, and `docs/DEPLOY-CPANEL.md`.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

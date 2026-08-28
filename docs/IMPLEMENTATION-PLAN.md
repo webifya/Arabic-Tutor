@@ -12,7 +12,7 @@ No database schema, auth flows, product routes, course data, AI calls, speech pr
 
 ## Phase 1 — Data and identity foundation
 
-Confirm production MariaDB/MySQL capabilities; design and migrate language, user/profile, role, Auth.js, settings, audit, and foundational course tables. Implement authentication, email verification/reset, authorization primitives, storage provider interface, and deployment-safe database access.
+Confirm production MariaDB/MySQL capabilities; design and migrate language, user/profile, role, Auth.js, settings, audit, and foundational course tables. Include reviewed AI provider/credential, provider model/capability, feature route/fallback, usage/check, voice profile/assignment, and teaching-style schemas. Implement authentication, email verification/reset, authorization primitives, storage provider interface, deployment-safe database access, and the encrypted-secret service using `APP_ENCRYPTION_KEY`. Do not build the provider admin UI or call vendor APIs in this phase.
 
 ## Phase 2 — Course and content engine
 
@@ -24,14 +24,14 @@ Implement onboarding, enrollment, dashboard, lesson navigation, generic exercise
 
 ## Phase 4 — Audio and pronunciation
 
-Implement microphone capture, upload limits, temporary processing, speech-to-text provider, deterministic comparison, honest confidence handling, Bangla coaching, reference TTS/cache, derived result storage, and privacy tests. Do not claim phoneme accuracy without a provider that measures it.
+Implement microphone capture, upload limits, temporary processing, provider-neutral STT/TTS/pronunciation adapters, voice-profile resolution, deterministic comparison, honest confidence handling, Bangla coaching, reference audio caching, derived result storage, and privacy tests. Do not claim phoneme accuracy without a provider that measures it.
 
 ## Phase 5 — Review and AI tutor
 
-Implement documented spaced repetition, review sessions, server-side OpenAI tutor with constrained context and structured outputs, rate/cost controls, safety policies, and progress isolation.
+Implement documented spaced repetition, review sessions, provider-neutral server-side tutor/content generation with constrained context and structured outputs, feature routing/fallback, rate/cost controls, safety policies, teaching-style resolution, and progress isolation.
 
 ## Phase 6 — Admin and production hardening
 
-Implement admin content workflows, publishing/review, audit tooling, observability, backup/restore drills, accessibility/performance/security review, load tests, and full cPanel release rehearsal.
+Implement admin content workflows and AI provider management: add/rotate credentials, test connections, enable providers/models, choose per-feature defaults and fallbacks, manage voice profiles/assignments, and view basic usage. Add publishing/review, audit tooling, observability, backup/restore drills, accessibility/performance/security review, load tests, and full cPanel release rehearsal.
 
 Every phase ends with lint, strict typecheck, unit/integration tests, relevant end-to-end coverage, a production build, updated documentation, and a rollback-aware deployment note.
