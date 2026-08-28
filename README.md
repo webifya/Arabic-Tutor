@@ -48,6 +48,7 @@ Playwright browser installation may be required once: `npx playwright install ch
 - [Database design](docs/DATABASE.md)
 - [Implementation plan](docs/IMPLEMENTATION-PLAN.md)
 - [cPanel deployment](docs/DEPLOY-CPANEL.md)
+- [cPanel staging acceptance checklist](docs/STAGING-ACCEPTANCE.md)
 - [Security](docs/SECURITY.md)
 - [Authentication](docs/AUTHENTICATION.md)
 - [Contributor/agent guidance](AGENTS.md)

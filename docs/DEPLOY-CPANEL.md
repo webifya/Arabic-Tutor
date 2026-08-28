@@ -1,5 +1,7 @@
 # Deploying to cPanel / Passenger
 
+> **Verification status:** The values in this document are general recommendations and local/CI-compatible instructions. A real cPanel staging host has not yet been supplied for verification. Use [the staging acceptance checklist](STAGING-ACCEPTANCE.md) and promote observed values here only after the operator records redacted evidence.
+
 ## Supported runtime
 
 Use Node.js 22.12+ LTS where cPanel offers it. Node.js 20.19+ and Node.js 24 are also supported; odd-numbered releases are not production targets. Confirm the exact version and memory/process limits with the host before deployment. The app uses a standard Node runtime and Next.js `output: "standalone"`; it does not require Vercel or Edge.
