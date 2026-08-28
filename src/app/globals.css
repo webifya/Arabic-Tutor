@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f5f1e8;
+  --foreground: #17362f;
+  --primary: #176b5b;
+  --accent: #dba83f;
+}
+
+* { box-sizing: border-box; }
+
+html, body { min-height: 100%; }
+
+body {
+  margin: 0;
+  color: var(--foreground);
+  background:
+    radial-gradient(circle at 20% 15%, rgb(219 168 63 / 18%), transparent 30rem),
+    linear-gradient(145deg, #faf8f2, var(--background));
+  font-family: var(--font-bengali), system-ui, sans-serif;
+}
+
+.page-shell {
+  display: grid;
+  min-height: 100svh;
+  place-items: center;
+  padding: 1.5rem;
+}
+
+.foundation-card {
+  width: min(100%, 44rem);
+  padding: clamp(2rem, 7vw, 5rem);
+  text-align: center;
+  background: rgb(255 255 255 / 78%);
+  border: 1px solid rgb(23 107 91 / 18%);
+  border-radius: 2rem;
+  box-shadow: 0 1.5rem 5rem rgb(23 54 47 / 12%);
+  backdrop-filter: blur(1rem);
+}
+
+.eyebrow, .status {
+  color: var(--primary);
+  font-size: .85rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+
+.arabic-mark {
+  margin: 1rem 0;
+  color: var(--primary);
+  font-family: var(--font-arabic), sans-serif;
+  font-size: clamp(4rem, 14vw, 7rem);
+  font-weight: 700;
+  line-height: 1;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(1.75rem, 5vw, 3rem);
+  line-height: 1.25;
+}
+
+.description {
+  margin: 1.25rem auto 0;
+  max-width: 34rem;
+  color: #4c615b;
+  font-size: 1.05rem;
+  line-height: 1.8;
+}
+
+.status {
+  display: inline-block;
+  margin: 2rem 0 0;
+  padding: .6rem 1rem;
+  background: rgb(23 107 91 / 9%);
+  border-radius: 999px;
+}

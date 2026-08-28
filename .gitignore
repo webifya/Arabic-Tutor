@@ -1,0 +1,35 @@
+# dependencies
+/node_modules
+
+# Next.js output
+/.next
+/out
+
+# testing
+/coverage
+/playwright-report
+/test-results
+
+# local environment files (the template is intentionally tracked)
+.env
+.env.*
+!.env.example
+
+# production and local storage
+/storage/*
+!/storage/.gitkeep
+
+# logs and OS/editor files
+*.log
+.DS_Store
+*.pem
+.idea
+.vscode
+
+# TypeScript and Prisma generated files
+*.tsbuildinfo
+/src/generated/prisma
+
+# cPanel/Passenger runtime files
+/tmp
+/passenger_wsgi.py
